@@ -1,4 +1,6 @@
-scripts
+scripts/__pycache__
+scripts/data_cache
+scripts/results
 .DS_Store
 
 # Byte-compiled / optimized / DLL files
