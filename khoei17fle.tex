@@ -1,0 +1,2609 @@
+%!TEX TS-program = PdfLaTeX
+%!TEX encoding = UTF-8 Unicode
+%!TEX spellcheck = en-US
+%!BIB TS-program = bibtex
+\def\Draft{0}% draft=1 or no draft = 0
+\def\Pace{0}% draft=1 or no draft = 0
+% -------definitions-----
+\newcommand{\AuthorA}{Khoei}%
+\newcommand{\AuthorB}{Masson}%
+\newcommand{\AuthorC}{Perrinet}%
+\newcommand{\FirstNameA}{Mina A.}%
+\newcommand{\FirstNameB}{Guillaume S.}%
+\newcommand{\FirstNameC}{Laurent U.}%
+\newcommand{\Institute}{Institut de Neurosciences de la Timone, UMR7289, CNRS / Aix-Marseille Universit\'e}%
+\newcommand{\Address}{27, Bd. Jean Moulin, 13385 Marseille Cedex 5, France}%
+\newcommand{\Website}{http://invibe.net/LaurentPerrinet}%
+\newcommand{\EmailA}{m.khoiee@gmail.com}%Mina.aliakbari-khoei@univ-amu.fr}%
+\newcommand{\EmailC}{Laurent.Perrinet@univ-amu.fr}%
+\newcommand{\EmailB}{Guillaume.Masson@univ-amu.fr}%
+\newcommand{\Title}{The flash-lag effect as a motion-based predictive shift}%
+\newcommand{\Abstract}{%
+Due to its inherent neural delays,
+the visual system has an outdated access to sensory information
+about the current position of moving objects.
+In contrast, living organisms are remarkably able to track and intercept moving objects
+under a large range of challenging environmental conditions.
+Physiological, behavioral and psychophysical evidences strongly suggest
+that position coding is extrapolated using an explicit and
+reliable representation of object's motion
+but it is still unclear how these two representations interact.
+For instance, the so-called flash-lag effect supports the idea of
+a differential processing of position between moving and static objects. 
+Although elucidating such mechanisms is crucial in our understanding of
+the dynamics of visual processing,
+a theory is still missing to explain the different facets of this visual illusion.
+Here, we reconsider several of the key aspects of the flash-lag effect in order
+to explore the role of motion upon neural coding of objects' position.
+First, we formalize the problem using a Bayesian modeling framework
+which includes a graded representation of the degree of belief about visual motion.
+We introduce a motion-based prediction model
+as a candidate explanation for the perception of coherent motion.
+By including the knowledge of a fixed delay,
+we can model the dynamics of sensory information integration
+by extrapolating the information acquired at previous instants in time.
+Next, we simulate the optimal estimation of object position
+with and without delay compensation and
+compared it with human perception
+under a broad range of different psychophysical conditions.
+Our computational study suggests that the explicit, probabilistic representation
+of velocity information is crucial in explaining position coding,
+and therefore the flash-lag effect.
+We discuss these theoretical results in light of the putative corrective mechanisms
+that can be used to cancel out the detrimental effects of neural delays and
+illuminate the more general question of the dynamical representation 
+of spatial information 
+at the present time 
+in the visual pathways.
+ }%
+\newcommand{\AuthorSummary}{%
+Visual illusions are powerful tools to explore
+the limits and constraints of human perception.
+One of them has received considerable empirical and theoretical interests: 
+the so-called ``flash-lag effect''.
+When a visual stimulus moves along a continuous trajectory,
+it may be seen \emph{ahead} of its veridical position
+with respect to an unpredictable event such as a punctuate flash.
+This illusion tells us something important
+about the visual system: contrary to classical computers,
+neural activity travels at a relatively slow speed.
+It is largely accepted that the resulting delays cause this perceived spatial lag of the flash.
+Still, after three decades of debates, there is no consensus
+regarding the underlying mechanisms.
+Herein, we re-examine the original hypothesis that this effect may be caused by the extrapolation of the stimulus' motion that is
+naturally generated  in order to compensate for neural delays.
+Contrary to classical models,
+we propose a novel theoretical framework, called parodiction,
+that optimizes this process by explicitly using
+the precision of both sensory and predicted motion.
+Using numerical simulations, we show that the parodiction theory subsumes
+many of the previously proposed models and empirical studies.
+More generally, the parodiction hypothesis proposes 
+that neural systems implement generic neural computations
+that can systematically compensate the existing neural delays
+in order to represent the predicted visual scene at the present time.
+It calls for new experimental approaches to directly explore 
+the relationships between neural delays and predictive coding.
+}%
+\newcommand{\CopyRight}{
+We confirm that Fig 1 contains three items from different sources which are compatible with your Creative Commons Attribution License (http://creativecommons.org/licenses/by/4.0/) with explicit permissions (CC-0 license): 
+- ball: see https://openclipart.org/detail/9618/football-soccer
+- player : see https://pixabay.com/en/soccer-football-player-sport-307188/
+- running player : see https://pixabay.com/en/soccer-football-playing-running-306925/.
+}
+\newcommand{\Keywords}{predictive coding, motion coherency, flash-lag effect, neural delays, diagonal model, motion extrapolation, probabilistic models}%
+\newcommand{\Acknowledgments}{
+LUP would like to thank Rick Adams and Karl Friston for fruitful discussions
+and the Wellcome Trust for NeuroImaging for supporting this collaboration.
+}\newcommand{\Funding}{
+MK was funded by the FACETS-ITN Marie Curie Training Network
+of the European Union (FP7-PEOPLE-ITN-2008-237955).
+LUP and GSM were supported by the European Union (BrainScaleS, FP7-FET-2010-269921), the Agence Nationale de la Recherche (Speed, ANR-13-SHS2-0006) and CNRS.
+} %
+%--------------------------
+%\documentclass[pdftex,a4paper,english]{article} % For LaTeX2e
+%\usepackage{times}
+\documentclass[10pt,letterpaper,english]{article}
+\usepackage[top=0.85in,left=2.75in,footskip=0.75in]{geometry}
+
+%% Use adjustwidth environment to exceed column width (see example table in text)
+\usepackage{changepage}
+%
+%% Use Unicode characters when possible
+\usepackage[utf8]{inputenc}
+%
+%% textcomp package and marvosym package for additional characters
+\usepackage{textcomp,marvosym}
+%
+\usepackage{babel}
+%\usepackage[protrusion=true,expansion=true]{microtype}	% Better typography
+
+% fixltx2e package for \textsubscript
+%\usepackage{fixltx2e}
+
+% amsmath and amssymb packages, useful for mathematical formulas and symbols
+\usepackage{amsmath,amssymb}
+%\usepackage{amsmath}	% math fonts
+%\usepackage{amsthm}
+%\usepackage{amsfonts}
+%
+%% cite package, to clean up citations in the main text. Do not remove.
+%\usepackage{cite}
+%
+%% Use nameref to cite supporting information files (see Supporting Information section for more info)
+\usepackage{nameref}
+%
+%
+%% ligatures disabled
+\usepackage{microtype}
+\DisableLigatures[f]{encoding = *, family = * }
+%
+%% rotating package for sideways tables
+\usepackage{rotating}
+
+\if 1\Draft
+%% line numbers
+\usepackage[right]{lineno}
+\usepackage{setspace}
+\doublespacing
+%\usepackage{lineno}
+\fi
+% Remove comment for double spacing
+%\usepackage{setspace}
+%
+% Text layout
+\raggedright
+\setlength{\parindent}{0.5cm}
+\textwidth 5.25in
+\textheight 8.75in
+%
+%
+%% Bold the 'Figure #' in the caption and separate it from the title/caption with a period
+%% Captions will be left justified
+\usepackage[aboveskip=1pt,labelfont=bf,
+labelsep=period,justification=raggedright,singlelinecheck=off]{caption}
+
+% Remove brackets from numbering in List of References
+\makeatletter
+\renewcommand{\@biblabel}[1]{\quad#1.}
+\makeatother
+
+% Leave date blank
+\date{}
+
+%% Header and Footer with logo
+
+\usepackage{graphicx}
+% Enable pdflatex
+\if 0\Pace
+\graphicspath{{./figures/}}%
+\DeclareGraphicsExtensions{.pdf}
+\else
+\graphicspath{{./figures/},{./}}%
+\DeclareGraphicsExtensions{.eps,.tiff}
+\fi
+
+\usepackage{lastpage}
+\usepackage{fancyhdr}
+\usepackage{epstopdf}
+\pagestyle{myheadings}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\includegraphics[width=2.0in]{PLOS-submission}}
+\rfoot{\thepage/\pageref{LastPage}}
+\renewcommand{\footrule}{\hrule height 2pt \vspace{2mm}}
+\fancyheadoffset[L]{2.25in}
+\fancyfootoffset[L]{2.25in}
+\lfoot{\sf PLOS}
+\usepackage{csquotes}
+\usepackage{units}%
+%\usepackage{float}
+%\usepackage{placeins}
+\usepackage{siunitx}
+%\renewcommand{\cite}{\citep}%
+\newcommand{\ms}{\si{\milli\second}}%
+\newcommand{\m}{\si{\meter}}%
+\newcommand{\s}{\si{\second}}%
+\newcommand{\NN}{\mathbb{N}}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\ZZ}{\mathbb{Z}}
+
+%\usepackage[natbib=true,sortcites=true,backend=biber,doi=false,isbn=false,url=false]{biblatex}%block=space,
+%\addbibresource{thesis.bib}
+\usepackage[comma,compress,numbers,square]{natbib}%sort&
+\newcommand{\citeA}{\citeauthor}%
+\renewcommand{\cite}{\citep}%
+%
+%\graphicspath{{../../commons/},{./figures/}}%
+%\DeclareGraphicsExtensions{.png,.pdf}%
+\usepackage[pdfusetitle,colorlinks=false,pdfborder={0 0 0}]{hyperref}%
+%	\usepackage{authblk}%
+\makeatletter
+% http://tex.stackexchange.com/questions/43648/why-doesnt-lineno-number-a-paragraph-when-it-is-followed-by-an-align-equation
+% Make a copy of macros responsible for entering display math mode
+\let\start@align@nopar\start@align
+\let\start@gather@nopar\start@gather
+\let\start@multline@nopar\start@multline
+% Add the "empty line" command to the macros
+\long\def\start@align{\par\start@align@nopar}
+\long\def\start@gather{\par\start@gather@nopar}
+\long\def\start@multline{\par\start@multline@nopar}
+\makeatother
+\listfiles
+\if 1\Draft
+%\usepackage[nomarkers,tablesonly]{endfloat}
+\usepackage[nolists]{endfloat}
+\fi
+\begin{document}%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\if 1\Draft
+%\linenumbers
+\doublespacing
+\fi
+\vspace*{0.35in}
+% Title must be 250 characters or less.
+% Please capitalize all terms in the title except conjunctions, prepositions, and articles.
+\begin{flushleft}
+{\Large
+\textbf\newline{\Title}
+}
+\newline
+% Insert author names, affiliations and corresponding author email (do not include titles, positions, or degrees).
+\\
+\FirstNameA\ \AuthorA , % \textsuperscript{1},
+\FirstNameB\ \AuthorB , %\textsuperscript{1},
+\FirstNameC\ \AuthorC \textsuperscript{*}
+\\
+\bigskip
+%\bf{1}
+\Institute\\\Address
+%\\
+%\bf{2} Affiliation Dept/Program/Center, Institution Name, City, State, Country
+%\\
+%\bf{3} Affiliation Dept/Program/Center, Institution Name, City, State, Country
+\\
+\bigskip
+% Use the asterisk to denote corresponding authorship and provide email address in note below.
+* \EmailC
+\end{flushleft}
+\if 1\Draft
+	\linenumbers
+\fi
+\section*{Abstract}
+\Abstract
+
+% Please keep the Author Summary between 150 and 200 words
+% Use first person. PLOS ONE authors please skip this step.
+% Author Summary not valid for PLOS ONE submissions.
+\section*{Author Summary}
+\AuthorSummary
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\subsection{Neural delays and motion-induced position shifts}%
+Though it is barely noticeable in everyday life,
+visual signals captured on the retina take a significant amount of time
+before they can elicit even the simplest actions such as eye movements.
+This neural delay is composed of two terms: a fixed delay caused
+by the axonal transfer of sensory signals up to motor effectors
+and a variable delay associated with the neural processing time occurring
+at each computational step.
+Moreover, different neural systems can lead to different delays,
+even for the simplest feed-forward sensorimotor transformations
+where most of the computational load occurs at sensory level.
+Just to mention, a delay of $90~\ms$ is observed between
+the onset of retinal image motion and
+the first acceleration of tracking eye movements
+in humans~\citep{Lisberger2010, Masson12, Montagnini15bicv}
+while the exact same sensorimotor transformation
+takes less than $60~\ms$ in monkeys~\citep{Masson12}.
+Furthermore, increasing signal uncertainty
+would further increase these delays~\citep{Masson12} illustrating the fact
+that neural delays also vary with many environmental or contextual factors.
+A mere consequence of these unavoidable neural delays should be
+that we perceive sensory events
+with a slight, but permanent lag~\citep{Nijhawan94,Inui06}.
+This is well illustrated in a position estimation task such as the one faced
+by a soccer referee. If a ball is shot at an unexpected instant by one fixed player,
+in the direction of another running player,
+he will generally perceive the moving player ``ahead'' of its actual position~\citep{Baldo02}
+and signal an off-side position despite the fact that the players' physical positions
+were strictly aligned to that of the referee (see Fig~\ref{fig:FLE_cartoon}).
+As a general rule, if no mechanism would intervene to compensate for such neural delays, one would expect
+severe inefficiencies in sensory computations as well as in goal-directed action control.
+On the contrary, there are ample evidences
+that animals can in fact cope with neural delays
+in order to plan and execute timely goal-directed actions.
+Thus, it seems evident that throughout natural evolution,
+some sophisticated compensatory mechanisms based
+on internal models have been selected~\citep{Franklin11}.
+Thus, studying neural delays and how they may be compensated
+is a critical question that needs to be resolved in order to decipher how basic neural computations
+such as the dynamical processing of sensory information can be efficiently performed
+(for a review, see~\citep{PerrinetAdamsFriston14}). Solving this enigma would have several theoretical 
+consequences such as, in particular, understanding
+how neural activity can encode both space and time~\citep{Nijhawan10}.
+
+% A platform to study neural delays: motion-induced position shifts
+Although these neural delays are usually rather short,
+they can easily be unveiled by psychophysical experiments.
+This Flash-lag effect (FLE) is a well-studied perceptual illusion
+which is intimately linked with the existence of neural delays~\citep{MacKay58}.
+In a standard empirical variant of the FLE,
+a first stimulus moves continuously along the central horizontal axis of the screen display.
+At the time this moving stimulus reaches the center of the screen,
+a second stimulus is flashed in its near vicinity but in perfect vertical alignment with it.
+Despite the fact that horizontal positions of the two stimuli
+are physically identical at the time of the flash, the moving stimulus is most often perceived \emph{ahead}
+of the flashed one (see the square stimulus in Fig~\ref{fig:FLE_cartoon}).
+The flash-lag effect falls in the vast category of motion-induced position shifts
+(e.g. the Fröhlich effect or
+the representational momentum effect~\citep{Musseler02, Eagleman07, Jancke09}),
+in which the perceived position of an object is biased 
+by its own visual motion or by other motion signals from its visual surrounding.
+How can we relate the FLE with the existence of the aforementioned neural delays?
+Several experimental studies have suggested
+that this visual illusion unveils predictive mechanisms
+that could compensate for the existing neural delays by extrapolating
+the object's motion~\citep{Nijhawan94, Berry99, Jancke04, Jancke09}.
+Since in natural scenes smooth trajectories are more probable than jittered ones,
+an internal representation may dynamically integrate information
+along the trajectory in order to predict the most expected position
+of the stimulus forward in time,
+\emph{knowing} an average estimate of the different neural delays.
+Though computationally simple,
+this algorithmic solution requires that neural computations can build and
+use an internal representation of position and velocity over time,
+that is, that they can manipulate the dynamic representation of a variable.
+
+% the method we propose
+%<*ParoDiction>
+The aim of our theoretical work is to better understand the interactions %
+between position and motion coding that are based on predictive mechanisms and that could be %
+implemented within the early visual system. %
+To do so, we introduce a generic probabilistic model that was previously shown to efficiently solve %
+other classical problems in sensory processing %
+such as the aperture problem and motion extrapolation~\citep{Perrinet12pred, Khoei13}. %
+This computational framework allows to quantify the relative efficiency %
+of these different coding mechanisms and to explain the main empirical psychophysical observations. %
+We propose a novel solution for introducing neural delays in the dynamics %
+of probabilistic inference and discuss how this approach is related %
+to previous models of motion diffusion and position coding. %
+Taking the Flash-lag effect as a well-documented illustration of the generic problem %
+of computing with delays, we show that our model can coalesce most %
+of the cardinal perceptual aspects of FLE and thus, %
+unite the previous models described below. %
+More generally, such generic computational principles could be shared %
+by other sensory modalities facing similar delays. %
+%</ParoDiction>
+%------------------------------------------------------------------------------------------------%
+%: fig:FLE_cartoon
+\begin{figure}%
+\begin{center}
+\if 0\Draft
+\if 0\Pace
+\includegraphics[width=\textwidth]{FLE_cartoon}
+\else
+\includegraphics[width=\textwidth]{Fig1}
+\fi
+\else
+Figure 1 around here
+\fi
+\end{center}
+\caption{
+\textbf{The flash-lag effect (FLE) as a motion-induced predictive shift} :
+%<*FleCartoon>
+To follow the example given by~\citep{Baldo02}, a football (soccer) player that would run %
+along a continuous path %
+(the green path, where the gradient of color denotes the flow of time) %
+is perceived to be ahead (the red position) of its actual position %
+at the unexpected moment a ball is shot (red star) %
+even if these positions are physically aligned. %
+A referee would then signal an ``offside'' position. %
+Similarly, such a flash-lag effect (FLE) is observed systematically in psychophysical experiments %
+by showing a moving and a flashed stimuli (here, a square). %
+By varying their characteristics (speed, relative position), %
+one can explore the fundamental principles of the FLE. %
+%</FleCartoon>
+\label{fig:FLE_cartoon}}%
+\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{A brief overview of the Flash-lag effect}
+\label{sec:intro}
+% The basis of FLE
+The Flash-lag effect was first described by~\citet{Metzger32} 
+and subsequently investigated by~\citet{MacKay58}.
+After these early studies, the phenomenon did not attract much attention 
+until~\citeA{Nijhawan94} begun to study a similar question.
+In his empirical approach, a moving and a static (flashed) stimuli 
+are presented with a perfect spatial and temporal alignment at the time of the flash but
+most subjects perceive the moving object as leading in space (see Fig~\ref{fig:FLE_cartoon}). 
+Such perceptual effect was reproduced in other species, in particular in monkeys~\citep{Subramaniyan2013}.
+Motion extrapolation is the correction of the object's position 
+based on an estimate of its own motion over the time period introduced by neural delays.
+\citeA{Nijhawan94} proposed that such motion extrapolation 
+can explain this perceived spatial offset between the two stimuli. 
+In this theoretical framework, the visual system is predictive and takes advantage
+of the available information about object's motion 
+in order to correct for the positional error caused by neural delays.
+
+%the problems of flash-initiated and flash-terminated cycles
+The seminal work of~\citeA{Nijhawan94} resurrected the interest for the FLE phenomenon. 
+Since then, the perceptual mechanisms underlying the FLE have been extensively explored
+by the group of Nijhawan~\citep{Nijhawan04, Nijhawan09, Maus10b} and
+others~\citep{Whitney98, Whitney00-1, Krekelberg_science, Schlag00, Eagleman00}
+(for a review see~\citep{Nijhawan02, Hubbard14}). Different variants of the original experiment
+were designed in order to challenge the different motion extrapolation models. 
+These studies revealed a flaw in \citeA{Nijhawan94}'s motion extrapolation theory 
+since it cannot account for the experimental observations made
+with two specific variants of the FLE, often called half-cycle FLEs~\citep{Nijhawan02}.
+Their common principle is to manipulate the position of the flash 
+relative to the trajectory of the moving object.
+While in the standard FLE, the flash appears in the middle of the motion path,
+the flash can now appear either at the beginning or at the end of the motion trajectory,
+thus defining the flash-initiated and flash-terminated cycle FLEs, respectively.
+The motion extrapolation hypothesis predicts that, at the beginning of the trajectory,
+the flashed and moving objects are not likely to be differentiated. However, this prediction was contradicted by the psychophysical results 
+showing a comparable position shift in both the flash-initiated cycle and the standard FLE.
+Furthermore, extrapolating a trajectory should impose an inertial component
+even in the presence of sudden changes in the visual motion properties,
+such as motion termination or reversal.
+By consequence, the motion extrapolation hypothesis predicts
+a perceptual overshoot that is similar in both flash-terminated and standard FLE.
+Again, this prediction was contradicted by psychophysical evidence
+demonstrating a lack of position shift
+in the flash-terminated cycle FLE~\citep{Eagleman00}.
+Lastly, several studies suggested that the motion extrapolation hypothesis
+needs to be supplemented with complementary mechanisms
+such as the a posteriori correction of the predicted position,
+in order to account for the perceived position
+after an abrupt change in the motion trajectory~\citep{Maus06, Nijhawan08, Maus09}.
+
+% alternatives models: latency, persistence and postdiction
+These new empirical evidences called for alternative hypotheses able to
+unify all of these different aspects of FLE.
+A first set of studies proposed that moving and static objects
+are processed with different latencies in the early visual system. Hence, 
+the perceived lag in FLE could be explained by the faster processing of moving objects,
+as compared to flashed inputs~\citep{Whitney98, Purushothaman98, Whitney00-1,Jancke04}.
+There may exist multiple origins at retinal and cortical levels
+for a more rapid processing of moving objects. Some authors reasoned that,  since both flashed and moving stimuli are processed and
+transmitted within a single (magno-cellular) retino-thalamo-cortical pathway,
+any difference would be explained by intra-cortical mechanisms that would process
+differently predictable and unpredictable events~\citep{Jancke04}. 
+However, there is still a lack of solid neurophysiological empirical evidences in support of this differential latency hypothesis.
+A second hypothesis suggested that the FLE may be explained by the position persistence for the flashed visual input~\citep{Krekelberg01, Krekelberg00-1}.
+The central idea is that motion information is averaged within a $500~\ms$ window. By consequence, the perceived position of the flash would persist,
+while the averaged position for the moving object is perceived ahead of its actual position, along its motion path. The main flaw of this hypothesis is that 
+the supposed time constant ($500~\ms$) is unrealistically long with respect to the known dynamics of motion integration.
+
+%<*WojtachAnalogies>
+More recently,~\citet{Wojtach08} proposed that the FLE %
+may be seen as a mere consequence of the distribution of speeds %
+that are empirically observed during our visual experience. %
+Using the perspective transform from the three-dimensional physical space %
+to the two-dimensional plane of the retinotopic space, %
+they assigned empirical probabilities of the observed retinal speeds %
+from the mapping of objects' velocities in the physical world. %
+By doing so, they defined an \emph{a priori} probability distribution of speeds %
+which can be combined with sensory evidence. %
+This solution proposes a probabilistic framework inferring an optical estimate of motion speed. %
+Such estimate is then used in a motion extrapolation model %
+compensating for the neural delay. %
+The authors estimated the amplitude of the lag %
+in respect to an extended speed range of object motion. %
+Their model depicts a nonlinear relationship %
+between motion speed and the perceptual lag, %
+similar to the one observed with the standard flash-lag experiment. %
+Thus, the model from~\citet{Wojtach08} provides an ingenious extension %
+of the motion extrapolation model using inferred speed. %
+However, this model was not tested against the aforementioned complete, and challenging set %
+of empirical studies probing the FLE at different epochs of the motion trajectory. %
+%</WojtachAnalogies>
+
+One last approach is the \emph{postdiction} hypothesis~\citep{Eagleman00}
+postulating that visual awareness attributes the position of a moving stimuli
+at the instant of the flash appearance according to the information collected
+within an $\approx 80 \ms$ time window following the flash.
+In particular, the flash is considered as a reset for motion integration and,
+as such, this would be sufficient in explaining why the FLE
+is not perceived in the flash-terminated cycle.
+The postdiction hypothesis relies on two main assumptions. First,
+both moving and flashed inputs have the same neural delays. Second, 
+the flash acts as a resetting mechanism.
+By consequence, the model predicts that observers shall perceive both
+a spatial lag of the flash and a change in the speed of the moving object.
+However, such a speed increment has never been reported in the context of FLE~\citep{Nijhawan02}.
+The postdiction model is thus an elegant hypothesis that allows us
+to understand a wide range of variants of the FLE but fails
+to explain this later aspect of FLE. 
+In summary, the half-cycles variants of the FLE introduced by~\citet{Eagleman00}
+remain challenging for all current theoretical approaches of the FLE,
+despite the fact that they might reveal how the visual system processes
+motion onset and offset and their impact on position coding.
+
+%###############################################################################
+\subsection{The parodiction hypothesis}
+%###############################################################################
+Overall, previous theoretical studies can be grouped according %
+to two main hypotheses. %
+On one hand, models based on latency difference or motion extrapolation rely %
+on how the neural representation of position information is encoded. %
+On the other hand, the postdiction hypothesis is based on %
+how visual awareness decodes objects' positions from neural activity in a short temporal window. %
+In the present theoretical study, we will propose a new hypothesis %
+which subsumes both of these aspects. %
+Our theoretical approach is based upon two major constraints faced by any neural system, %
+in comparison to a conventional computer, %
+when estimating the position of an object: %
+First, there is no access to a central clock, that is, %
+the present, exteroceptive, physical timing is hidden %
+(or latent in machine learning terms) to the nervous system. %
+Second, the internal representation encoded in the neural activity is distributed and dynamical. %
+In particular, the system is confronted to non-stationary sources of noises and %
+has to provide for an optimal estimate at any time for upstream neural networks. %
+\\
+Driven by these constraints, %
+a biologically-realistic hypothesis is that a perceived position %
+corresponds to the most likely position at the present time~\citep{Changizi01}. %
+According to the probabilistic brain hypothesis %
+(see~\citep{PerrinetAdamsFriston14} for a generic application to eye movements), %
+an optimal solution is that the internal representation encodes beliefs %
+in the form of probability distribution functions (pdf) and %
+that the optimal estimate is computed knowing both the instantaneous sensory data %
+and the internal representation. %
+When the represented variable, such as the position, is predictable, %
+this process involves that the internal representation %
+uses a generative model of its dynamics to progressively refine the estimation. %
+As a result, using a probabilistic formulation of predictive coding, %
+it is possible to explicitly represent the instantaneous information %
+about object's motion and its precision, %
+coherently with the role played by perceptual precision in the FLE~\citep{Kanai04}. %
+Consequently, we propose that a generic goal of these neural computations is %
+to optimally align the position represented in the neural activity %
+with that at the veridical, but hidden, physical time. %
+We will call this approach the \emph{parodiction} hypothesis, %
+from the ancient Greek $\pi\alpha\rho{\acute o}\nu$, the present time. %
+\\
+Herein, we will show that probabilistic motion extrapolation %
+can efficiently compensate for the neural delays and %
+explain the shift in perceived positions in the different variants of the FLE. %
+The paper is organized as follows. %
+First, we will define the probabilistic motion extrapolation model %
+and we will describe how delays can be taken into account. %
+This model extends a simple motion-based predictive model %
+based on the temporal coherency of visual trajectories that we proposed earlier~\citep{Perrinet12pred} %
+and is also a novel formulation of the original motion extrapolation model proposed by Nijhawan~\citep{Nijhawan94}. %
+Second, we present the results of this model with the standard FLE %
+and in particular we titrate the role of the velocity of the moving object. %
+Then, we show that the model can account for both standard and half-cycle FLEs. %
+In particular, we demonstrate that within this optimal integration scheme, %
+the relative precision of sensory and internal information %
+may modulate the gain of their interaction. %
+This is first illustrated by challenging the model with a motion reversal experiment. %
+To further investigate this behavior, we manipulated the contrast of the stimuli. %
+This allowed us to dynamically switch the system from a purely feed-forward model, %
+exhibiting differential latencies, %
+to a model showing a pure motion extrapolation behavior. %
+We will finally discuss the advantages and limitations %
+of our \emph{parodiction} hypothesis, in comparison with the previously proposed models. %
+%-------------------------------------------------------------------------------
+%###############################################################################
+%-------------------------------------------------------------------------------
+%###############################################################################
+%-------------------------------------------------------------------------------
+\section{Model \& methods}%
+\label{sec:met}
+%###############################################################################
+\subsection{Motion-based prediction and the diagonal models}
+%###############################################################################
+%###############################################################################
+This computational study explores the potential role
+of predictive coding in explaining the dynamics of position coding.
+Similar to most predictive models, a natural choice for the representation
+of information is to use probabilities.
+Thus, the motion of an object is best described
+by the probability distribution function (pdf)
+of its instantaneous position $(x, y)$ and velocity $(u, v)$~\citep{Perrinet12pred}.
+Note that these coordinates are defined in the planar visual space,
+under the assumption that we model small displacements
+in the vicinity of the visual axis.
+The pdf $p(x, y, u, v)$ represents at a given time
+the degree of belief among a set of possible positions and velocities.
+In this framework, a Bayesian predictive model will
+optimally integrate the sensory information available
+from the sensory inputs (likelihood) with an internal model
+(i.~e. an \emph{a priori} distribution) of state transition
+in order to compute an \emph{a posteriori} pdf of motion.
+Typically, the likelihood is computed using
+a model of sensory noise,
+an approach that fits well to the motion energy model
+of the direction-selective cells in the cortex~\citep{Adelson85,Weiss01,Perrinet07}.
+By sequentially combining at any given time $t$ the \emph{a posteriori} estimate
+with the likelihood using the prior on state transition,
+we implement a Markov chain forming a dynamical predictive system.
+
+One novelty of motion-based prediction is to encapsulate
+the coherency of motion trajectory in the internal model,
+that is, in the prior of state transition. In particular,
+this prior knowledge instantiates a preference
+for smooth transitions of successive motion states, as expected
+from the statistics of natural visual motion trajectories~\citep{Weiss01}.
+Such an internal model was first proposed in a neural network
+implementing the detection of a single moving dot embedded
+in very high level of noise~\citep{Burgi00}.
+More recently, we have shown that this motion-based prediction model
+can explain the dynamics of the neural solution
+to both the aperture problem~\citep{Perrinet12pred}
+and motion extrapolation~\citep{Khoei13}.
+In the present study, we will show that it can also be used to compensate
+for known neural delays~\citep{PerrinetAdamsFriston14}.
+It is important to recall that our model is reminiscent of the diagonal model
+originally proposed by~\citep{Nijhawan09}
+(called thereafter Nijhawan's diagonal model), but with one important distinction: motion information
+is now represented by probabilities.
+
+%############################
+\subsection{A probabilistic implementation of the Nijhawan's diagonal model}
+%###########################
+%###########################
+In order to define a predictive system, one can use a classical Markov chain
+formed by sequentially combining, at any given time,
+the likelihood with a prior on state transition. % (see Fig~\ref{fig:DiagonalMarkov}-A).
+When describing visual motion (i.e., position and velocity) at time $t$
+by the instantaneous state vector $z_t = (x_t, y_t, u_t, v_t)$,
+the master equations of this Markov chain become:
+%
+\begin{align}%
+\textit{estimation:~}& p(z_{t} | I_{0:t}) \propto p( I_{t-\delta t:t} | z_{t})
+\cdot p(z_{t} | I_{0:t-\delta t}) \label{eq:mc1}\\%
+\textit{prediction:~}& p(z_{t} | I_{0:t-\delta t}) = %\nonumber \\
+ \int {dz_{t-\delta t}} \cdot p( z_{t} | z_{t-\delta t})
+ \cdot p(z_{t-\delta t} | I_{0:t-\delta t}) \label{eq:mc2}%
+\end{align}%
+%
+where $p( I_{t-\delta t:t} | z_{t})$ is the likelihood
+computed over the infinitesimally small temporal window $[t-\delta t, t)$,
+that is, the time window of width $\delta t$ before present time $t$.
+%(see Fig~\ref{fig:DiagonalMarkov}-A).
+By definition, the pdf $p(z_{t} | I_{0:t})$ corresponds
+to the belief in the motion $z_t$ at time $t$,
+knowing the sensory information $I$ being integrated over the temporal window starting
+at the beginning of the observations ($t=0$) and extending to the current time $t$.
+Notice that the probabilistic notations will allow us
+to conveniently describe the current belief on the state vector
+before observing a new sensory information as the pdf $p(z_{t} | I_{0:t-\delta t})$.
+Importantly, this dynamical system is biologically realistic as it
+describes the belief in a macroscopic time window $[0, t)$, based only
+on the integration of the information available
+at the present time $[t-\delta t, t)$.
+
+Intuitively, this model combines the two basic operations of probability theory.
+First, in the estimation stage, the multiplication corresponds
+to the combination of two independent pieces of information:
+one element is derived from the measurements
+(i.e. the likelihood $p( I_{t-\delta t:t} | z_{t})$) and
+the other is the current knowledge about the state before the measurements.
+Information is assumed to be conditionally independent
+because the source of noise in the likelihood (measurement noise)
+is assumed to be independent from the internally generated
+state estimation noise.
+This first stage corresponds to a {\sc AND} operator in boolean logic.
+Second, in the prediction state, the possible state $p(z_{t} | I_{0:t-\delta t})$
+is inferred by an addition over all possible previous states,
+given by the integral sign.
+The integrals sum over the whole distribution of estimated positions
+the possible state transitions at $t-\delta t$ that would yield $z_t$.
+By consequence, very unlikely states (at time $t-\delta t$) and
+state transitions (for instance, incoherent non-smooth motions)
+will have little weight in this summation.
+This computational step corresponds to a {\sc OR} operator in boolean logic.
+These two steps implement the classical ``predict-update cycle''
+of the Markov model and are sufficient
+to define our dynamical predictive coding model.
+
+%check the two sentences below
+However, in this mathematical framework,
+one needs to gain an immediate access to sensory information,
+that is, to know the image $I$ at time $t$,
+in order to compute $p( I_{t-\delta t:t} | z_{t})$.
+This is impossible in the presence of neural delays.
+Considering a known (fixed) neural delay $\tau$,
+at time $t$ the system only had access to $I_{0:t-\tau}$
+and thus one may only estimate $p(z_{t} | I_{0:t-\tau})$.
+An essential property of motion-based predictive coding
+is the ability to extrapolate motion when sensory information
+is transiently absent~\citep{Khoei13}.
+As illustrated in Fig~\ref{fig:DiagonalMarkov}-A,
+the probability distribution function $p(z_{t} | I_{0:t-\tau})$
+may be predicted by ``pushing forward'' the information $p(z_{t-\tau} | I_{0:t-\tau})$
+such as to compensate for the delay, while being still recursively
+computed in a way similar to a classical Markov chain model
+(see the bottom part of Fig~\ref{fig:DiagonalMarkov}-A).
+Thus, a classical Markov chain in the presence of a known delay
+can be redrawn in a ``diagonal'' mode. 
+It is similar to the original suggestion
+made by~\citet{Nijhawan09} in order to explain the detailed mechanism
+of motion extrapolation in retinal ganglion cells.
+Here, we generalize this diagonal mode as a probabilistic model
+of predictive motion estimation. %
+
+As a consequence, the master equations of this diagonal model can be written as:
+%
+\begin{align}%
+\textit{estimation:~} & \; p(z_{t-\tau} | I_{0:t-\tau}) \propto
+p( I_{t-\tau-\delta t:t-\tau} | z_{t-\tau})
+\cdot p( z_{t-\tau} | I_{0:t-\tau-\delta t})\label{eq:diag-push1}\\
+\textit{prediction:~} & \; p(z_{t-\tau} | I_{0:t- \tau-\delta t}) =
+\int {dz_{t- \tau-\delta t}} \cdot p( z_{t-\tau} | z_{t-\tau-\delta t})
+\cdot p(z_{t-\tau-\delta t} | I_{0:t-\tau-\delta t}) \label{eq:diag-push2}\\
+\textit{extrapolation:~} & \; p(z_{t} | I_{0:t- \tau}) =
+\int {dz_{t-\tau}} \cdot p( z_{t} | z_{t-\tau})
+\cdot p(z_{t-\tau} | I_{0:t-\tau}) \label{eq:diag-push3}
+\end{align}%
+%
+As evidenced by these equations,
+Equations~\ref{eq:diag-push1} and~\ref{eq:diag-push2} are similar
+to Equations~\ref{eq:mc1} and~\ref{eq:mc2},
+except that these are now delayed by $\tau$, the known sensory delay.
+This information $p(z_{t-\tau} | I_{0:t-\tau})$
+is then ``pushed'' forward in time using the extrapolation step
+(see Equation~\ref{eq:diag-push3}),
+in a similar fashion to the predictive step
+on the infinitesimal period (Equations~\ref{eq:mc2} and~\ref{eq:diag-push2})
+but now on the possibly longer period of the sensory delay (in general $\tau >> \delta t$).
+As a result, we obtain the estimate of motion at the current time,
+knowing the information acquired until $t-\tau$,
+that is, $p( z_{t} | I_{0:t- \tau})$.
+Finally, the next states correspond to the integration
+of the estimations at the actual current stimulus position and motion,
+overcoming the restrictive effect of delay~\citep{PerrinetAdamsFriston14}.
+Note that the earliest part of the trajectory is necessarily missed since
+motion estimation begins integrating sensory information only
+after the delay $\tau$, as there is no sensory input before.
+Decisively, this model is now compatible
+with our initial hypothesis that sensory information
+is only available after a delay.
+%------------------------------------------------------------------------------%
+%: fig:DiagonalMarkov
+\begin{figure}%[ht]
+\centering{%
+\if 0\Draft
+\if 0\Pace %
+\includegraphics[width=\textwidth]{FLE_DiagonalMarkov} %
+\else %
+\includegraphics[width=\textwidth]{Fig2} %
+\fi %
+\else
+Figure 2 around here
+\fi
+}%
+\caption{\textbf{Diagonal Markov chain.}
+In the current study, the estimated state vector $z = \{x, y, u, v\}$
+is composed of the 2D position ($x$ and $y$) and velocity ($u$ and $v$)
+of a (moving) stimulus.
+{\sf (A)}~First, we extend a classical Markov chain using 
+Nijhawan's diagonal model in order to take into account
+the known neural delay $\tau$:
+At time $t$, information is integrated until time $t-\tau$,
+using a Markov chain and a model of state transitions $p(z_t | z_{t-\delta t})$
+such that one can infer the state
+until the last accessible information $p( z_{t-\tau} | I_{0:t-\tau})$.
+This information can then be ``pushed'' forward in time by predicting
+its trajectory from $t-\tau$ to $t$.
+In particular $p( z_{t} | I_{0:t-\tau})$ can be predicted
+by the same internal model by using the state transition
+at the time scale of the delay, that is, $p(z_t | z_{t-\tau})$.
+This is virtually equivalent to a motion extrapolation model
+but without sensory measurements during the time window
+between $t-\tau$ and $t$.
+Note that both predictions in this model are based
+on the same model of state transitions.
+{\sf (B)}~One can write a second, equivalent ``pull'' mode for the diagonal model.
+Now, the current state is directly estimated based on a Markov chain
+on the sequence of delayed estimations.
+While being equivalent to the push-mode described above,
+such a direct computation allows to more easily combine information
+from areas with different delays.
+Such a model implements Nijhawan's ``diagonal model'', but now
+motion information is probabilistic and therefore, 
+inferred motion may be modulated by the respective precisions
+of the sensory and internal representations.
+{\sf (C)}~Such a diagonal delay compensation can be demonstrated
+in a two-layered neural network including
+a source (input) and a target (predictive) layer~\citep{KaplanKhoei14}.
+The source layer receives the delayed sensory information and
+encodes both position and velocity topographically
+within the different retinotopic maps of each layer.
+For the sake of simplicity, we illustrate only one 2D map of the motions $(x, v)$.
+The integration of coherent information can either be done
+in the source layer (push mode) or in the target layer (pull mode).
+Crucially, to implement a delay compensation in this motion-based prediction model,
+one may simply connect each source neuron to a predictive neuron corresponding
+to the corrected position of stimulus $(x+v\cdot \tau, v)$ in the target layer.
+The precision of this anisotropic connectivity map can be tuned
+by the width of convergence
+from the source to the target populations.
+Using such a simple mapping, we have previously shown that
+the neuronal population activity
+can infer the current position along the trajectory
+despite the existence of neural delays~\citep{KaplanKhoei14}.
+}\label{fig:DiagonalMarkov}
+\end{figure}
+%--------------------------------------------------------------------------------------
+
+Although this first model (i.e. the ``pushing'' mode) is the easiest to understand
+with respect to a Markov chain, it is less practical to consider within a 
+biological setting since it defines that, at time $t$,
+the state is inferred from a representation
+of a past state $p(z_{t-\tau} | I_{0:t-\tau})$.
+For neural networks implementations, 
+the internal representation (as encoded by the neural activity)
+is only accessible at the present time.
+As a consequence, it may be more convenient
+to derive a set of predictive steps that would directly act on the estimation
+of the state at the current time $p( z_{t} | I_{0:t-\tau})$.
+This question is particularly acute for complex architectures mimicking
+the deep hierarchies of low-level visual cortical areas
+where information should not be conditioned by the delays arising
+at each processing layer but rather be based on a common temporal reference
+such as the current time $t$. 
+In that objective, one notes that, by merging
+the estimation and prediction steps in the master equation, we obtain:
+%#################
+\begin{align}%
+p(z_{t} | I_{0:t-\tau}) =& \int {dz_{t-\tau}} \cdot p( z_{t} | z_{t-\tau})
+		\cdot p(z_{t-\tau} | I_{0:t-\tau}) \nonumber \\
+	 \propto & \int {dz_{t-\tau}} \cdot p( z_{t} | z_{t-\tau})
+	  	\cdot [ p( I_{t-\tau-\delta t:t-\tau} | z_{t-\tau})
+	   	\cdot p( z_{t-\tau} | I_{0:t-\tau-\delta t}) ] \\
+	 \propto & [\int {dz_{t-\tau}} \cdot p( z_{t} | z_{t-\tau})
+	  	\cdot p( I_{t-\tau-\delta t:t-\tau} | z_{t-\tau})]
+	 	\cdot \int {dz_{t- \tau-\delta t}}
+	 	\cdot p( z_{t-\tau} | z_{t-\tau-\delta t}) \cdot  \nonumber \\
+	 & p(z_{t-\tau-\delta t} | I_{0:t-\tau-\delta t})
+\end{align}
+Regrouping terms, it becomes:
+\begin{align}%
+ p(z_{t} | I_{0:t-\tau}) \propto &
+ \int {dz_{t-\tau}}
+ \cdot p( z_{t} | z_{t-\tau}) \cdot
+ [ \int {dz_{t- \tau-\delta t}}
+ \cdot p( z_{t- \tau} | z_{t- \tau-\delta t})
+ \cdot p( I_{t-\tau-\delta t:t-\tau} | z_{t-\tau}) \cdot  \nonumber \\
+ &  p(z_{t-\tau-\delta t} | I_{0:t-\tau-\delta t})]
+\end{align}
+
+The term within brackets can be written as an argument of an extrapolation
+ from $t-\tau$ to $t$, yielding to:
+\begin{align}%
+ p(z_{t} | I_{0:t-\tau}) \propto
+ \int {dz_{t-\delta t}}\cdot p( z_{t} | z_{t-\delta t})
+ \cdot p( I_{t-\tau-\delta t:t-\tau} | z_{t})
+ \cdot p( z_{t-\delta t} | I_{0:t-\tau-\delta t})
+\end{align}
+As frequently assumed, the transition matrix is stationary:
+our prior assumption on the internal model
+(here, the parameters with which we model the coherence of trajectories)
+do not change over time. Finally, regrouping terms, we obtain:
+\begin{align}%
+ p(z_{t} | I_{0:t-\tau}) \propto
+ p( I_{t-\tau-\delta t:t-\tau} | z_{t}) \cdot [ \int {dz_{t-\delta t}}
+ \cdot p( z_{t} | z_{t-\delta t}) \cdot p(z_{t-\delta t} | I_{0:t-\tau-\delta t}) ]
+\end{align}
+Therefore, the master equation to the ``push'' mode are equivalent to:
+%#################
+\begin{align}%
+%\textit{pulling mode:} \nonumber \\
+\textit{estimation:~} & \; p(z_{t} | I_{0:t-\tau}) \propto % \nonumber \\
+ p( I_{t-\tau-\delta t:t-\tau} | z_{t})
+ \cdot p( z_{t} | I_{0:t-\tau-\delta t})\label{eq:diag-pull1}\\
+\textit{prediction:~} & \; p(z_{t} | I_{0:t- \tau-\delta t}) = % \nonumber \\
+ \int {dz_{t-\delta t}} \cdot p( z_{t} | z_{t-\delta t})
+ \cdot p(z_{t-\delta t} | I_{0:t-\tau-\delta t}) \label{eq:diag-pull2}\\
+ \textit{extrapolation:~} & \; p( I_{t-\tau-\delta t:t-\tau} | z_{t}) =
+ \int {dz_{t-\tau}} \cdot p( z_{t} | z_{t-\tau})
+  \cdot p( I_{t-\tau-\delta t:t-\tau} | z_{t-\tau}) \label{eq:diag-pull3}
+\end{align}
+We will call this second mode the ``pulling'' mode
+and is illustrated in Fig~\ref{fig:DiagonalMarkov}-B.
+
+The two modes that have been presented above share the same processing logic
+but have different implications about the manner
+with which both the internal model and the likelihood function might be implemented.
+In the pushing mode, the motion state $z_{t-\tau}$ is estimated from both
+a delayed sensory input $I_{t-\tau-\delta t:t-\tau}$ and the motion coherency.
+Equation \ref{eq:diag-push1} calculates the probability of a desired motion state,
+using the likelihood of that state
+(measured from the sensory information with a delay $\tau$)
+and the predicted belief given by equation \ref{eq:diag-push2}.
+At the next step, the estimated motion is extrapolated
+for a period of duration $\tau$, similar to a ``virtual blank''
+during which there is no sensory measurements~\citep{Khoei13}.
+% (see Fig~\ref{fig:DiagonalMarkov}-B).
+Thus, the extrapolation step shown by equation \ref{eq:diag-push3}
+is purely predictive, under the constraint of motion coherency (see Equation~\ref{eq:diag-pull2}) and
+with the available information about the delay $\tau$.
+In the pulling mode, the probabilistic representation is different
+as the current state is directly estimated from the delayed measurements and
+the extrapolative step is ``hidden''
+in the probability $p(z_{t} | I_{0:t- \tau-\delta t})$.
+Under the stationarity assumption,
+both modes are mathematically equivalent and
+produce the same probabilistic representation
+of instantaneous states based on delayed measurements.
+
+In summary, the information about the motion estimates (position, velocity)
+at time $t$ knowing the sensory information observed between $0$ and $t-\tau$
+is contained in the pdf $p(z_{t} | I_{0:t-\tau})$.
+As we have seen above, it can be computed using the diagonal model in push mode and
+summarized in the following master equations:
+\begin{align}%
+ p(z_{t} | I_{0:t-\tau}) &\propto \int {dz_{t-\delta t}} \cdot p( z_{t} | z_{t-\delta t})
+ \cdot p( I_{t-\tau-\delta t:t-\tau} | z_{t}) %\nonumber \\
+ \cdot p(z_{t-\delta t} | I_{0:t-\tau-\delta t}) \label{eq:master-push1} \\
+p(I_{t-\tau-\delta t:t-\tau} | z_{t}) &=
+ \int {dz_{t-\tau}} \cdot p( z_{t} | z_{t-\tau})
+ \cdot p(I_{t-\tau-\delta t:t-\tau} | z_{t-\tau}) \label{eq:master-push2}
+\end{align}
+Equations~\ref{eq:master-push1} and \ref{eq:master-push2} are the master equations
+of Nijhawan's diagonal model when framing it in a probabilistic setting.
+Importantly, the inferred motion may be modulated by the respective precisions
+of the sensory ($p(I_{t-\tau-\delta t:t-\tau} | z_{t})$)
+and internal ($p(z_{t-\delta t} | I_{0:t-\tau-\delta t})$) representations.
+%
+The model gives a probabilistic distribution of the estimated motion state $z_t$,
+based on delayed motion measurements $I_{t-\tau}$.
+In the next section, we will describe how
+the transition probability distribution functions $p( z_{t} | z_{t-\tau})$ and
+ $p( z_{t} | z_{t-\delta t})$ are computed.
+%
+\subsection{Diagonal Motion-based prediction (dMBP)}
+\label{subsec:mbp}
+% todo : see Kowler for more complex trajectories
+We have seen above that one needs to characterize the temporal coherency of motion
+for different temporal steps, as represented by $p( z_{t} | z_{t-\Delta t})$
+with $\Delta t = \delta t$ or $\Delta t = \tau$. Assuming that motion
+is \emph{transported} in time during this time period of $\Delta t$
+(with a drift similar to a Brownian motion and characterized
+by some given diffusion parameters), we obtain~\citep{Perrinet12pred}:
+%#############################
+\begin{align}
+& \left\{
+\begin{array}{lll}
+\ x_{t} &= x_{t-\Delta t} + u_{t-\Delta t} \cdot \Delta t + {\nu}_x \\%\nonumber \\%
+\ y_{t} &= y_{t-\Delta t} + v_{t-\Delta t} \cdot \Delta t + {\nu}_y %\\%
+\end{array}
+\right.
+\label{eq:smooth1}
+\\
+& \left\{
+\begin{array}{lll}
+\ u_{t} &= \gamma \cdot u_{t-\Delta t} + {\nu}_u \\%\nonumber \\%
+\ v_{t} &= \gamma \cdot v_{t-\Delta t} + {\nu}_v %
+%\ u_{t} &= u_{t-\Delta t} + {\nu}_u \\%\nonumber \\%
+%\ v_{t} &= v_{t-\Delta t} + {\nu}_v %
+\end{array}
+\right.
+\label{eq:smooth2}%
+\end{align}%
+Here, $\gamma=(1 + \frac{D_{V}}{\sigma_{p}^{2}})^{-1}$ is the damping factor
+introduced by the prior on slowness of motion~\citep{Khoei13}.
+As defined by~\citet{Weiss01}, this prior information
+about slowness and smoothness of visual motion can be parameterized
+by its variance $\sigma_{p}^{2}$ and
+$\gamma \approx 1$ for a high value of $\sigma_p$.
+
+The diffusion parameters characterize the precision of the temporal motion coherency and
+are parameterized by the variance of the Gaussian distributions that
+define the additive noise ${\nu}_x, {\nu}_y$ in the transport equations.
+First, the variance $D_{X} \cdot |\Delta t|$ setting the blur in position define the noise distribution as:
+%
+\begin{align}
+{\nu}_x, {\nu}_y & \propto \mathcal {N}((x, y); (0, 0), D_{X} \cdot |\Delta t|) \label{eq:smooth-var1} %
+\end{align}
+%
+where $\mathcal {N}((x, y); \mu, \sigma^2)$ is the two dimensional normal distribution
+on real numbers $x$ and $y$ of mean $\mu\in \RR^2$ and variance $\sigma^2$
+(assuming isotropy of the noise, the covariance matrix is unitary).
+Concerning velocity, this models assumes similarly that ${\nu}_u$ and ${\nu}_v$
+are modeled by Gaussian distributions:
+%
+\begin{align}
+{\nu}_u, {\nu}_v & \propto \mathcal {N}((u, v); (0, 0), (\sigma_{p}^{-2} +D_{V}^{-1})^{-1}
+\cdot |\Delta t|) \label{eq:smooth-var2} %
+%{\nu}_u, {\nu}_v & \propto \mathcal {N}(u, v; 0, D_{V}
+% \cdot \Delta t) \label{eq:smooth-var2} %
+\end{align}
+%
+where the diffusion parameter $D_{V}$ parameterizes the dynamics of the motion vector.
+Finally, the variance equals to $(\sigma_{p}^{-2} +D_{V}^{-1})^{-1}\cdot |\Delta t|$.
+Note that for a very weak prior for slow speeds, $\sigma_{p} ^{-2} \approx 0$
+and $(\sigma_{p}^{-2} +D_{V}^{-1})^{-1}\approx D_{V}$ such that it is then similar
+to the Brownian diffusion equation on position.
+This updating rule (see~\citep{Perrinet07} for a derivation) assumes
+independence of the prior on slow speeds with respect to predictive prior
+on smooth trajectories (see~\citep{Khoei13} for more details).
+
+From these generative equations, one may then compute
+both $p(z_{t-\tau}|z_{t-\tau-\delta{t}})$ and
+$p( z_{t} | z_{t-\tau})$ using equations~\ref{eq:smooth1}-\ref{eq:smooth2} and
+the assumption in equations~\ref{eq:smooth-var1}-\ref{eq:smooth-var2}.
+Note also that in all generality, we have used a formulation where extrapolation 
+can be performed forwards in time ($\Delta t >0$), but also backwards ($\Delta t <0$),
+as it may be useful in some cases to guess a position in a past state, 
+when only knowing the state at the present time.
+By including the compensation for the neural delay
+in the motion-based prediction (MBP) model, this defines a novel,
+more general diagonal model that we call diagonal motion-based prediction (dMBP).
+%############################
+\subsection{A neural interpretation of the dMBP model}
+%############################
+From a biological perspective, it seems very unlikely that sensory neurons can store
+complex time series about past variables. A strong constraint in understanding
+the biologically-plausible mechanisms for delay compensation
+is to build models which would only use the neural activity available at the present time.
+As such, one solution may arise from generalized representation of variables
+where a given variable (e.g. position) is represented at any given time $t$
+by its value and its instantaneous time derivatives (that is, velocity, acceleration and so on).
+In a previous computational study on the compensation of delays
+in neural networks~\citep{PerrinetAdamsFriston14},
+we introduced the idea that sensory delays can be (internally) simulated and
+corrected by applying delays to sensory inputs producing sensory prediction errors.
+In a biologically-realistic network, the application of delay operators
+can be implemented by changing synaptic connection strengths in order
+to capture different mixtures of generalized sensations and their prediction errors.
+The precision of this compensation (and therefore on the range of delays it can compensate)
+is highly dependent upon the number of orders in the generalized representation and
+on their respective precision, as measured by the inverse of their variance
+(for a detailed mathematical account, see~\citep{Friston10d}).
+In other words, in a neural network encoding both position and velocity,
+a compensation for delays in the sort we described above may be easily achieved solely
+by appropriately setting the matrix of connectivity weights.
+
+The present motion-based predictive coding can be implemented
+in a simple two-layered neural network as illustrated in Fig~\ref{fig:DiagonalMarkov}-C.
+The source layer implements a neural representation of sensory inputs and
+activates specific populations of the target layer. More specifically,
+the neural activity within the input layer represents the likelihood of the sensory input
+at time $t$ knowing the delay $\tau$, that is: $p( I_{t-\tau-\delta t:t-\tau} | z_{t})$.
+In particular, the mapping between the source and target layers is fixed
+but anisotropic (as it is implementing $p( z_{t} | z_{t-\tau})$),
+the bias depending upon the estimated velocity and neural delay $\tau$.
+For instance, in the case of the example neuron displayed
+in Fig~\ref{fig:DiagonalMarkov}-C),
+its efferents in the target layer may be interpreted as a neural population
+which is stimulated by the sensory information received 
+by some ``rightward'' neurons centered on its left.
+Finally, a third stream of information allows to update
+the dynamics of the internal model (that is, of $p( z_{t} | I_{0:t-\tau})$)
+using lateral connectivity. 
+From the mathematical equivalence between the push mode
+and the pull mode that was presented above, 
+this could be implemented indifferently
+in the source layer by implementing $p( z_{t-\tau} | z_{t-\tau-\delta t})$ or
+in the target layer by implementing $p( z_{t} | z_{t-\delta t})$.
+It shall be noticed that the architecture of this model is not fundamentally different
+from our previous model of motion extrapolation during a transient blanking
+of the sensory flow~\citep{Khoei13}.
+Now the sensory delay consists in a ``virtual blank'' during which sensory information
+is not sensed. Since the architecture of our previous model
+has been already implemented in a spiking neural network (SNN)
+using anisotropic connectivity patterns~\citep{KaplanKhoei14},
+one could easily provide a similar neural network implementation of this dMBP model.
+
+%<*DMBP>
+Once the dMBP model is defined, %
+it is important to briefly highlight its analogies with other implementations. %
+For instance, instead of considering a parametric model for the prior distributions, %
+we may use an empirical prior, such as the one defined for speed by~\citet{Wojtach08}. %
+It is however important to note that a departure of our model %
+with that of~\citet{Wojtach08} is the fact that, %
+instead of using the inferred speed from the likelihood and the speed prior, %
+we use the probability distribution function for the representation of motion. %
+In particular, the precision of the information in the source and target layers %
+will be essential to weight the dynamical integration of information during %
+the flow of sensory information. This proved to be essential %
+in a dynamical display such as the FLE. More generally speaking, %
+when the sensory input is best described by a Gaussian distribution, %
+our model is equivalent to a Kalman filter, %
+in the form of an optimal smoother, as previously introduced by~\citet{Rao01} %
+(see also~\citep{PerrinetAdamsFriston14} %
+for a more rigorous and extended mathematical formulation). %
+However, this latter model used a sequential representation of the activity %
+both in external (physical) and internal temporal spaces. %
+There is no neurophysiological evidence that such a representation could be implemented. %
+Rather, we reasoned that all information should be available at the present time. %
+%</DMBP>
+%-----------------------------------------------------------------%
+\section{Results}%
+\label{sec:res}%
+%-----------------------------------------------------------------%
+%-----------------------------------------------------------------%
+We tested our model with the different instances of the FLE conditions and %
+manipulated the parameters of the static (flashed) and %
+moving stimuli in order to explore the advantages of motion-based position coding %
+with respect to previous models. %
+The dMBP model was implemented %
+with a particle filter method which has been previously detailed in~\citep{Perrinet12pred}. %
+An extensive parameter scan for simulations was performed %
+on a cluster of Linux nodes (Debian Wheezy) %
+using python (version 3.5.0) and numpy (version 1.10.1). %
+The code written to produce all figures and supplementary materials is available %
+on the corresponding author's website at \url{\Website/Publications/KhoeiMassonPerrinet17}. %
+On a standard laptop computer (early 2015 MacBook pro Retina %
+with 3,1 GHz Intel Core i7 and 16 GB DDR3 memory), %
+a video of resolution $256\times256$ at $100$ frames per second is approximately %
+processed at half real time such that reproducing all the figures presented herein takes %
+approximately one hour of processing. %
+\\
+% R3: Since the probability distributions are significantly different from what has been presented in Fig. 4 of the previous paper version, it is fundamental to present the model parameters used. Interested readers could then simulate the model with different settings to fully appreciate the claimed robustness of model predictions.
+%<*Simulations>
+The model and its simulations are controlled by a limited set of parameters. %
+The MBP model originally described in~\citep{Perrinet12pred} was controlled only %
+by the 2 diffusion parameters ($D_X$ and $D_V$), %
+the width of the slow speed prior and, lastly %
+the parameters of the motion energy model used to estimate the likelihoods %
+(that is, the estimate of background noise's variance and a gain element). %
+In particular, the likelihood is computed using a motion energy %
+based on a generative model of the motion of objects in natural scenes~\citep{Vacher15}. %
+We used the same values as in~\citep{Perrinet12pred}, which have been shown %
+as yielding to the emergence of a stable tracking behavior %
+when presented with a smooth rectilinear trajectory %
+(see Table~\ref{tab:model}). %
+The present extension of this MBP model to the current dMBP model adds %
+a single new parameter, the sensory latency $\tau$. %
+\\
+% _____________________________________ %
+\begin{table}[h!] 
+\caption{{\bf Model's parameters.} %
+The model is implemented using the same paradigm as detailed in~\citep{Perrinet12pred} while the extrapolation uses the same formalism as in~\citep{Khoei13}. We used a similar set of parameters and controlled by a set of iPython notebooks that are available on the corresponding author's website. Note that the speed and diffusion parameters are given relative to one spatio-temporal period.\label{tab:model}} 
+\begin{center}
+\begin{tabular}{@{\vrule height 1.5pt depth 4pt width 0pt}llll}
+Name 			& Value 	& Role 										& Range \\
+ \hline \\[-1ex]
+%$D_x^M$, $D_x^P$& $(1, 2)$& diffusion parameter in position (resp. MBP, PBP) & $\RR^+$ \\
+%$D_V^M$, $D_V^P$& $(1, \infty)$ & diffusion parameter in speed (resp. MBP, PBP) & $\RR^+$ \\
+$D_X$			& $1$		& diffusion parameter in position			& $\RR^+$ \\
+$D_V$			& $1$ 		& diffusion parameter in speed				& $\RR^+$ \\
+$\sigma_{p}$	& $3.$ 		& characteristic value for the speed prior 	& $\RR^+$ \\
+$N_T$, $\delta_t$& $100$, $T/N_T=.01$ 	& number of frames, time step (in seconds) & $\ZZ^+$ \\
+$\tau$ 			& $10/N_T=.1$  	& fixed delay (latency, in seconds)						& $\ZZ^+$ \\
+$N_X$, $N_Y$ 	& $256, 256$ & number of pixels 						& $\ZZ^+$ \\
+$\sigma_I$ 		& $.25$ 	& standard deviation in the motion energy model			& $\RR^+$ \\
+$\sigma_{noise}$& $0.05$ 	& standard deviation of the assumed noise & $\RR^+$ \\
+%p_epsilon = 0.1 # a priori probability for being on signal
+%sigma_motion = .1 # std of error in motion energy - intrinsic + extrinsic
+%K_motion = .001
+%# TODO : threshold for the resampling
+%resample = .5 # how much turn-over in the resampling method: tunes the compromise between generality and precision (it is a rate per frame)
+\end{tabular}
+\end{center}
+\end{table}
+%------------------------------%
+Finally, the parameters of the visual stimulation were the speed and length %
+of the moving dot trajectory, as well as the position and duration of the flash %
+(see Table~\ref{tab:stimulus}). %
+To efficiently titrate the role of these parameters, we built a computational framework to test different parameters ranges. %
+This code is available as a collection of iPython notebooks which allow to %
+reproduce each figure of this paper but also to track the role of each respective parameter. %
+In particular, results with different FLE conditions %
+(i.e. short flashes, dot visibility after motion stop...) were qualitatively similar. %
+The respective contributions of both model and visual stimuli parameters will be described below. %
+% _____________________________________ %
+\begin{table}[h!] 
+\caption{{\bf Stimuli's parameters.} %
+Stimuli are generated on a space defined in absolute values (ranging arbitrarily from $-1$ to $1$) and time defined from $t=0$ to $t=T$ (in seconds). As such, stimulus parameters are defined in these units. To avoid border effects, the spatio-temporal domain is defined as a 3-dimensional torus (that is the cartesian product of the periodic real spaces $\RR / 2\ZZ \otimes\RR / 2\ZZ \otimes \RR / T\ZZ $). By convention, a speed of $1$ is defined as a motion of one spatial period in one temporal period. \label{tab:stimulus}} 
+\begin{center}
+\begin{tabular}{@{\vrule height 1.5pt depth 4pt width 0pt}llll}
+Name 			& Value 	& Role 										& Range \\
+ \hline \\[-1ex]
+$T$ 			& $1$ 		& duration (in seconds) of the stimuli)  	& $\RR^+$ \\
+$dot_{size}$ 	& $0.05$ 	& size of the dot 							& $\RR^+$ \\
+$V$ 			& $1$ 		& speed of the dot 							& $\RR$ \\
+$dot_{start}$ 	& $.2$ 		& start of trajectory (in seconds) 			& $[0, T]$ \\
+$dot_{stop}$ 	& $.8$ 		& end of trajectory (in seconds) 			& $[dot_{start}, T]$ \\
+$I_{noise}$ 	& $.05$ 	& std of noise in images 					& $\RR^+$ \\
+$T_f$ 		& $0.05$ 	& flash duration (in seconds)			 	& $\RR^+$ 
+\end{tabular}
+\end{center}
+\end{table}
+%------------------------------%
+%</Simulations>
+%-----------------------------------------------------------------%
+\subsection{Diagonal motion-based prediction (dMBP) and the flash-lag effect (FLE)}
+%-----------------------------------------------------------------%
+% summarizing experiment
+The standard FLE experiment is composed of a simple moving stimulus (a dot) and
+a static flash that appears in perfect alignment
+as the stimulus crosses the middle of its trajectory (Fig~\ref{fig:FLE_cartoon}).
+We reproduced these exact conditions to test our model. Defining the spatial coordinates between $-1$ and $1$,
+the dot appeared at $t=0.2~\s$ for rightward motion from $x = -0.6$, 
+moved toward $x=0.6$ and then disappeared at this position.
+Thanks to the symmetry between left- and rightward motions, we will only show the results for the pure horizontal rightward motion of a small dot.
+We defined an absolute time in arbitrary units
+for which motion begun at $t=200~\ms$ and ended at $t=800~\ms$.
+In the simulations, this period of time was subdivided into $100$ frames
+such that every frame of stimulus was arbitrarily set to $10~\ms$ of biological time 
+and one temporal period lasted $1$ second.
+In all experiments, the flash persisted for $5\%$ of display duration 
+($5$ frames out of $100$, that is, frames $\#48$ to $\#52$). 
+Notice that such flash duration is much longer than the microsecond duration used in 
+psychophysical experiments~\citep{Perrinet12pred}. Such ultrashort duration was set to avoid retinal persistence and other perceptual effects 
+that could interact with the perceived timing but was irrelevant for the current modeling study. Still,
+we run the model with a range of these timing values 
+and checked that the results remain qualitatively similar. 
+Lastly, all results were computed over~$20$ independent repetitions
+by changing the seed of the number generator that governs
+the generation of sensory and internal noise.
+
+% the classical FLE effect: dMBP vs PBP
+Fig~\ref{fig:FLE} summarizes the main results when simulating the FLE with
+the dMBP model for $\tau = 100~\ms$,
+a realistic delay for human motion perception.
+In Fig~\ref{fig:FLE}-A, we plot the estimated positions of both static (flashing) and moving stimuli. 
+The position of the moving dot shows a spatial lead similar 
+to what was reported in the psychophysical literature. 
+Fig~\ref{fig:FLE}-B illustrates the responses of the dMBP model together with a control condition, 
+the position-based prediction (PBP) model where the predictive term relative to motion was discarded. 
+This PBP model is simply defined by using the same equations but assuming that,
+first, the precision in equation~\ref{eq:smooth-var2} is zero,
+meaning that the diffusion parameter $D_{V}$ is infinite
+and second, that the speed prior defines an isotropic
+diffusion factor similar to that of the diffusion in position. 
+Thus the PBP and dMBP models differ in regards of the information used 
+(position only vs position and velocity) and thus of the shape of the diffusion (isotropic vs anisotropic). %
+For the two models, we analyzed their estimated responses as spatial histograms %
+with $50$~bins over the range of horizontal spatial positions (that is,~$(-1,1)$). %
+In particular, the positional bias reported for the FLE was computed %
+as the inferred position of the moving dot %
+at the instant at which the flashed stimulus reached its maximum precision, %
+that is to say when the standard deviation of its inferred position was minimal. %
+In Fig~\ref{fig:FLE}-B, we plot the two frames before and after that instant. %
+As the flash was an unexpected event, this maximum was achieved after %
+the fixed delay period and a variable processing delay that we %
+robustly observed to be of about one frame ($\approx 10~\ms$) in our simulations. %
+%Below, we will qualitatively assess the potential model parameters influencing this variable delay %
+%(see inset in Fig~\ref{fig:FLE_contrast}-B). %
+It is evident from Fig~\ref{fig:FLE}-B that, at the moment at which the flash was maximally activating the dMBP model, %
+the estimation of the position of the moving stimuli was ahead of the location of the flash.  %
+By comparison, the PBP model did not show this effect, suggesting % 
+that motion-based prediction is indeed necessary to account for the Flash-lag effect. %
+
+% Effects on stimulus speed
+As expected, the speed of the moving dot affected the perceived spatial lead. 
+When running the dMBP model with $\tau = 100~\ms$, 
+the spatial lead of the moving dot monotonically increased with dot speed, 
+until it reached a saturation value for very high speeds (Fig~\ref{fig:FLE}-C). 
+This result is consistent with the empirical observations of~\citet{Wojtach08}
+but also that reviewed in~\citep{Cantor2007}. 
+However, such nonlinear relationship between spatial lead and stimulus velocity 
+was obtained without the need for a specific speed-tuned prior, 
+as postulated in the model of~\citet{Wojtach08}. 
+The saturation observed for high speeds was concomitant 
+with a sharp increase in the variance of the position estimates. 
+Thus, inferred motion was less precise for higher speeds, 
+despite the fact that (spatial) trajectory length remained constant. Again, this result
+is consistent with psychophysical data 
+on global and local (dot) motion perception (e.g.~\citep{Simoncini12, Orban1984, Orban1985}). 
+Overall, the non-linear relationship between spatial lead and 
+the dot motion speed results from both the optimal integration of information within the system 
+and the decrease in precision of the sensory information at higher speeds. 
+Thus, the dMBP model highlights the importance of having a probabilistic representation 
+of visual motion in order to elaborate mechanisms which are able to compensate for neural delays.
+%---------------------------------------------------------------%
+%------------------------------------------------------------------------------------------------%
+%: fig:FLE
+\begin{figure}%
+\centering{%
+\if 0\Draft
+\if 0\Pace %
+\includegraphics[width=\textwidth]{FLE} %
+\else %
+\includegraphics[width=\textwidth]{Fig3} %
+\fi %
+\else
+Figure 3 around here
+\fi
+}%
+\caption{\textbf{
+The diagonal motion-based prediction (dMBP) model accounts for the Flash-lag effect}.
+{\sf (A)} We plot the histogram of estimated positions from the dMBP model
+with a neural delay $\tau = 100~\ms$
+for the moving and the flashed stimuli.
+These estimated positions are averaged across the five frames centered
+around the time at which the response to the flash reaches
+its maximal precision and across $20$ trials. 
+Comparing the distribution of estimated positions 
+for the moving (green) and flashed (in red) stimuli shows that,
+at this particular instant, the (left) moving dot is perceived ahead
+of the estimated position of the flash.
+{\sf (B)} We quantified this spatial lead by plotting the histograms
+of the inferred horizontal positions during these frames,
+both for the position-based predictive (PBP) and dMBP models.
+The red and green dashed vertical lines represent the average positions
+of the flashed and moving stimuli, respectively.
+One can observe a significant spatial lead in the dMBP model,
+but not in the PBP model.
+The motion component of the dMBP model is thus essential
+to explain the flash-lag effect.
+{\sf (C)} We varied the speed of the dot motion to titrate
+its role in the amplitude of the spatial lead.
+The black dashed line illustrates the predicted linear relationship %
+from an extrapolation model with a perfect knowledge about target speed (slope one). %
+One can observe a nearly linear relationship at slow speeds, followed by %
+a saturation for higher speeds. %
+At the fastest extrema of the speed range, %
+ones observes a decrease in the spatial lead of the moving spot, %
+together with an higher variability across trials %
+(error bars: $\pm  1$ SD), %
+consistent with the experimental data from~\citep{Wojtach08}. %
+The nonlinear relationship in our model emerges %
+from the decrease of precision in the representation of motion at higher speeds. %
+It highlights the putative role of the dynamic, explicit representation %
+of precision in explaining the flash-lag effect. %
+\label{fig:FLE}}%
+\end{figure}
+%-----------------------------------------------------------------%
+\subsection{Standard FLE versus half-cycle FLEs}
+%-----------------------------------------------------------------%
+% the objectives of the experiments
+Next, we simulated the spatial lead of a moving dot in the case of half-cycle FLEs 
+where the flash appeared either at the beginning or at the end of the motion trajectory.
+As discussed above, the half-cycle FLEs described by~\citet{Nijhawan02}
+have challenged the diagonal model of FLE. Therefore,  our goal was to test 
+whether our diagonal motion-based prediction (dMBP) 
+can account for these different conditions. 
+
+% the observed results
+% R3: First, compared to the plots in the previous revision it is true that~\textcolor{red}{[(The pdfs at time frame (i+0) shown in Fig. 4 now better match the psychophysical data, in particular the lack of overshooting in the flash-terminated condition. The discussion of the initially bi-modal distribution, which becomes mono-modal at the time of the flash’s maximum response, is understandable. Still, the distribution looks quite flat at (i+0) and reading out the maximum seems to be a challenge. The notion of a detection threshold used in the previous version has been removed, it might be necessary to distinguish the absence of information from information with different levels of uncertainty. Please further clarify this point.
+%<*FleTerminated>
+Fig~\ref{fig:FLE_limit_cycles} illustrates the model's output %
+for the two different half-cycle FLEs by plotting the probability distributions %
+for the inferred positions of both the flashed (red curves) and moving (green curves) dots. %
+The estimated perceived positions were computed as the maximum a posteriori values, %
+across the five frames duration of the flash (respectively numbered from $i-2$ to $i+2$). %
+These a posteriori probability distribution functions %
+represent the peak (most probable) inferred position %
+as well as the spatial uncertainty which are essential components %
+in motion-induced perceptual shifts~\citep{Kanai04}. %
+In the flash-initiated half cycle, %
+the flash appeared at the beginning of the moving dot trajectory. %
+The simulations unveiled two phenomena. %
+First, the precision of the estimated positions of the flash %
+gradually increased over time (lower left panel). %
+Moreover, we observed that the center of the distribution of the inferred positions was always aligned %
+with respect to the physical location of the flashing dot (see Fig~\ref{fig:FLE_limit_cycles}-A). %
+Second, ones can see a rapid sharpening for the position of the moving dot over time. %
+This increase in precision was concomitant with a smooth shift of the moving dot's %
+perceived position along the motion direction, corresponding to the classical FLE. %
+As such, our model simulate a position bias in the flash-initiated condition that is consistent with the psychophysical observations %
+~\citep{Nijhawan02}.
+%</FleTerminated>
+
+The dynamics was different in the flash-terminated condition (Fig~\ref{fig:FLE_limit_cycles}-B). %
+Consistent with the standard FLE, we observed first a bias in the two frames occurring before the maximum of the flash.  Moreover, the distribution was very broad, %
+consistent with a high uncertainty about the position of the dot. Gradually, the maximum of the position's distribution shifts towards the flash location. %
+Hence, near the moment of the flash's maximum response, we obtained a bimodal distribution %
+corresponding to a competition of the early extrapolated position with a second, unbiased distribution. %
+At the time the flash was perceived, the two peaks corresponding %
+to the estimated positions of both flashed and moving stimuli were now closely matched. %
+These reported positions were now consistent with the classical psychophysical observations that, %
+in flash-terminated cycles, there is no perceived spatial lead at the moment the moving dot disappears. %
+When interpreting the disappearance of bias in the flash-terminated condition,%
+~\citeA{Eagleman00} proposed that the movement occurring before the flash was not sufficient %
+to induce a flash-lag illusion and therefore proposed an alternative theoretical framework, %
+the postdiction model~\citep{Eagleman00}. Other studies have reported that under some stimulus conditions, the FLE does occur in the flash-terminated cycle %
+(e.g.~\citep{Fu01, Kanai04}) in particular when the uncertainty about the position in space of the moving stimulus is high. The simulated dynamics of the estimated position during the flash-terminated cycle shows that the probabilistic representation of visual inputs underlying the dMBP model is sufficient to reconcile those apparently contradictory results. Thus, the dMBP provides a powerful framework to account for the different variants of the FLE and a broad range of their experimental conditions. %
+We will now explain why the dMBP model can account for these different variants of the FLE. %
+%------------------------------------------------------------------------------------------------%
+%: fig:FLE_limit_cycles
+\begin{figure*}%
+\centering{%
+\if 0\Draft
+\if 0\Pace %
+\includegraphics[width=\textwidth]{FLE_limit_cycles} %
+\else %
+\includegraphics[width=\textwidth]{Fig4} %
+\fi %
+\else
+Figure 4 around here
+\fi
+}%
+\caption{\textbf{
+Both flash-initiated and flash-terminated conditions
+can be explained by the diagonal motion-based prediction (dMBP) model.}
+With the same format as Fig~\ref{fig:FLE}-B, we plot the temporal evolution
+of the probability distributions of the inferred position for
+both the flashed (in red) and moving (in green) dots, in
+the {\sf (A)} flash-initiated and {\sf (B)} flash-terminated conditions.
+As in Fig~\ref{fig:FLE}-B, 
+each curve corresponds to the five frames (respectively numbered from $i-2$ to $i+2$)
+centered on the time of the model's maximal response to the flash.
+Dashed vertical lines indicate at each frame the estimated positions
+from the maximum a posteriori of the probability distributions
+for either the flash (red) or the moving (green) dot,
+together with the veridical position of the flashed dot (black).
+%These lines are omitted when their precision falls below $50\%$ of the display's width.
+As expected, one can observe that the distribution of inferred positions
+is approximately correct for the flashed stimulus in all conditions.
+In the flash-initiated FLE condition, 
+the distribution for the moving dot is biased towards its direction 
+and develops very rapidly. Notice however that these biases are smaller
+than observed with the standard FLE. 
+In the flash-terminated conditions,
+the bias is observed in the last frames before the maximum of the flash and 
+then competes with another estimate with no bias 
+which dominates near the moment of the flash's maximum.
+Note that the a posteriori probability distributions around  
+the flash's maximum are very broad and indicate a high spatial uncertainty.
+Altogether, the absence of bias in the flash-terminated condition is similar to that 
+reported psychophysically with human observers~\citep{Nijhawan02}.
+\label{fig:FLE_limit_cycles}}%
+\end{figure*}
+%------------------------------------------------------------------------------------------------%
+%interpretation
+
+A first step was to further detail the internal dynamics of the dMBP model during the motion of the dot.
+As shown in Fig~\ref{fig:FLE_histogram}, we investigated the temporal dynamics 
+of the estimations of both position and velocity 
+by plotting their spatial histograms as a function of time, over the complete trajectory. 
+We focused on three different epochs of motion trajectory, 
+corresponding to the standard, flash-initiated and flash-terminated conditions. 
+For each epoch, the vertical dotted black lines indicate the physical time of the flash 
+and the green lines signal the delayed input with the known delay ($\tau=100~\ms$). 
+Both the source and target layers are illustrated for each of three different phases. 
+First, we found a rapid build-up of the precision of the target
+after the first appearance of the moving dot (at $t=300~\ms$).
+Consistent with the Fr\"{o}lich effect,
+the beginning of the trajectory was seen ahead of its physical position as indicated by the maximum of probability distributions lying in between the oblique green and back dotted lines. 
+During the second phase, the moving dot was correctly tracked
+as both its velocity and position are correctly inferred.
+In the source layer, there was no extrapolation and the trajectory followed
+the delayed trajectory of the dot (green dotted line).
+In the target layer, motion extrapolation correctly predicted the position
+at the present time and the position followed the actual physical position
+of the dot (black dotted line).
+Finally, the third phase corresponded to the motion termination.
+The moving dot disappeared and the corresponding activity gradually vanished
+in the source layer at $t=900~\ms$.
+However, between $t=800~\ms$ and $t=900~\ms$, 
+the dot position was extrapolated and predicted ahead of the terminal position in the target layer.
+At $t=900~\ms$, sensory visual motion information was now absent and 
+the prior for slow speeds dominated.
+Both the quick drop of the estimated velocity after the dot's disappearance
+and the diffusion of this information in both position and velocity spaces
+led to the progressive extinction of position extrapolation ahead of the sensed position.
+Consistently with this new information, 
+the position information was now gradually extrapolated
+thanks to the broad, zero-centered prior distribution for speeds.
+As such, the inferred position in the target layer was now extrapolated isotropically
+from that of the source layer at $t=900~\ms$, that is to say, at the terminal horizontal position.
+Although this distribution was much less precise, 
+the average position of the moving dot at flash termination
+was invariably perceived at the same position as that of the flash. 
+
+The termination epoch illustrates some key differences 
+between our probabilistic model and previous theoretical explanations. 
+The dMBP model explicitly differentiates between a zero motion 
+(i.e. ``I know that the stimulus does not move'') 
+and an absence of knowledge, as represented by the prior distributions for velocities.
+In particular, we do not need to postulate the existence of a resetting mechanism.
+For instance, the FLE is present at termination when introducing spatial uncertainty (for instance at a higher eccentricity) 
+but disappears again in the same configuration when the dot stops and does not not disappear~\citep{Kanai04}.  
+A second key difference is the introduction of a compensation for the latency which is controlled 
+by the precision of the sensory and internal beliefs.
+The important distinction is that the system is tuned to give the most probable state
+at the current time even if the incoming information is from the past (delayed by $\tau$). 
+In particular, at the end of the trajectory,
+the system updates its prediction after the delay of $\tau=100~\ms$, 
+according to the collected information at $t=800~\ms$ and which is sensed at $t=900~\ms$. 
+At this particular moment, instead of keeping the prediction
+that the dot moved during this period,
+the dMBP model updates its state with the knowledge that the dot disappeared 
+at the physical time corresponding to motion offset
+and is more likely to be near the last observed position at $t=900~\ms$ 
+(and that corresponds to the physical time $t=800~\ms$). 
+One prediction of the dMBP model is therefore that, 
+with a long enough delay (as is the case here), the predicted position 
+should be first estimated ahead of the actual position and then, \emph{with hindsight}, 
+shifts back to the position accounting for the end of motion (see Fig~\ref{fig:FLE_limit_cycles}-B). 
+Overall, this dynamics explains the perceptual difference observed 
+between the flash-terminated and flash-initiated FLEs 
+and provides a simple and parsimonious alternative to the postdiction theory.
+%
+%---------------------------------------------------------------------%
+%: fig:FLE_histogram
+\begin{figure}
+\centering{%
+\if 0\Draft
+\if 0\Pace %
+\includegraphics[width=\textwidth]{FLE_histogram} %
+\else %
+\includegraphics[width=\textwidth]{Fig5} %
+\fi %
+\else
+Figure 5 around here
+\fi
+}%
+\caption{
+\textbf{Histogram of the estimated positions as a function of time for the dMBP model.}
+Histograms of the inferred horizontal positions (blueish bottom panel) and
+horizontal velocity (reddish top panel), as a function of time frame, from the dMBP model. 
+Darker levels correspond to higher probabilities,
+while a light color corresponds to an unlikely estimation.
+We highlight three successive epochs along the trajectory,
+corresponding to the flash initiated, standard (mid-point) and flash terminated cycles.
+The timing of the flashes are respectively indicated by the dashed vertical lines.
+In dark, the physical time and in green the delayed input knowing $\tau=100~\ms$.
+Histograms are plotted at two different levels of our model in the push mode.
+The left-hand column illustrates the source layer that corresponds
+to the integration of delayed sensory information, including the prior on motion. 
+The right-hand illustrates the target layer corresponding
+to the same information but after the occurrence of some motion extrapolation compensating for the known neural delay $\tau$.
+\label{fig:FLE_histogram}}
+\end{figure}
+%---------------------------------------------------------------------%
+%
+%-----------------------------------------------------------------%
+\subsection{The FLE and beyond: motion reversal}
+%-----------------------------------------------------------------%
+Extending the previous results, we investigated the inferred position 
+when the motion of the dot is not interrupted, but reversed.
+As such, we simulated the experiment reported by~\citet{Whitney98} 
+and modeled by~\citet{Rao01}.
+In this variant of the FLE, the moving dot reverses direction
+at the middle of the trajectory, and then maintains its new trajectory.
+To implement this stimulus, we used the same stimulus as in Fig~\ref{fig:FLE}, 
+but mirrored vertically the image for the frames occurring in the second half of the movie. 
+Results are shown in the left column of Fig~\ref{fig:FLE_MotionReversal},
+using the same format as the target layer in Fig~\ref{fig:FLE_histogram}. 
+As expected, the model's behavior is consistent 
+with that observed with the flash-initiated cycle condition.
+First, the estimated position follows the first half of the trajectory 
+and continues to be extrapolated after the time $t$ of reversal and 
+until the moment  $t+\tau$ at which the sensory evidences about the motion reversal has reached the system.
+From this moment in time, the source layer updates the target layer 
+according to the new visual information. 
+As in the previous case with the flash-terminated FLE,
+the estimated velocity is rapidly updated and converges to the new motion direction. 
+Using the parodiction hypothesis, the model updates at this instant  
+the velocity used in the extrapolation of the present position
+as it acquires this novel knowledge (that is, with some hindsight).
+The estimated position in the target layer thus ``jumps'' to the new location 
+and then follows the second half of the trajectory. 
+
+Overall, the model's behavior is qualitatively similar %
+to the filtering model reported by~\citet{Rao01}. %
+Under some generic hypothesis about the noise distribution, %
+the dMBP model is in fact equivalent to a Kalman filter with a fixed delay~\citep{PerrinetAdamsFriston14}. %
+It is therefore consistent with the optimal filtering model of~\citet{Rao01}. %
+%This is confirmed numerically by the results presented in Fig~\ref{fig:FLE_MotionReversal}. 
+%However, it is important to note the model can achieve this result 
+%without postulating the different temporal representations that were needed in~\citet{Rao01}. 
+%In particular, the dMBP model does not have a representation 
+%of the sequence of positions during the temporal window corresponding to the sensory latency. 
+%Instead, our model simply assumes that all information is available at the present time. 
+%Crucially, we have shown that it is the differential representation
+%between the source input layer and the target predictive layer 
+%that allows computing a correct estimate of the position despite of the sensory delay.
+%
+At first sight, the response of our model may seem at odd with %
+the behavioral results reported by~\citet{Whitney98} %
+where no overshoot (and thus no jump) was found in the estimated position after motion reversal, %
+as predicted in the optimal smoother model proposed by~\citep{Rao01}. %
+This model extrapolates the current position knowing the past positions within %
+a temporal window corresponding to some subjective latency. %
+It is based on the postdiction hypothesis postulating that the position that is accessible %
+to visual awareness is evaluated after some additional delay $\tau_s$. Thus, position is reported %
+in the reference frame of a delayed, subjective time %
+which is the same for the two stimuli (the moving and flashed dots). %
+Similarly to that model, we may use our probabilistic framework to update the information after this delay: %
+The postdiction hypothesis thus states that the evaluation for the position at the present time $t$ %
+is done in the future at time $t+\tau_s$. %
+The information at this time is $p(z_{t+\tau_s} | I_{0:t-\tau+\tau_s})$ and %
+similarly to the extrapolation which is performed over future times  (see Equation~\ref{eq:diag-push3}), %
+we may extrapolate over past times (that is, backwards in time) using a similar hypothesis: %
+\begin{align}%
+p(z_{t} | I_{0:t-\tau+\tau_s}) = %
+\int {dz_{t}} \cdot p( z_{t} | z_{t+\tau_s}) %
+\cdot p(z_{t+\tau_s} | I_{0:t-\tau+\tau_s}) %
+\end{align}%
+\\
+% smoothing maximises accuracy?
+The output of this transformation is shown in the right column (labelled smoothed layer) %
+of Fig~\ref{fig:FLE_MotionReversal}, with $\tau_s=100~\ms$ and %
+the values of subjective time being realigned to physical time for the sake of clarity. %
+Now, our results show qualitatively no overshoot and the model's dynamics is %
+similar to the optimal smoother model proposed by~\citet{Rao01}. %
+Note that a similar transformation applied to the flash-terminated cycle would %
+qualitatively smooth the estimate of the position using past frames and %
+thus enhance the absence of bias in this case. %
+\\
+This transformation applied to the probabilistic information illustrates two key properties of the dMBP model. %
+First, it shows that the model can explain the experimental data from~\citet{Whitney98} %
+by explicitly modeling the decoding used in this experiment. %
+In particular, our model can explain why the spatial position of the moving dot %
+begins to deviate \emph{before} the random time of the reversal. %
+Such probabilistic framework can also account for the contradicting results obtained in the flash-terminated cycle where, for instance %
+the FLE was reported by~\citet{Eagleman00} but not by others~\citep{Kanai04, Fu01} and was found to be in fact dependent %
+upon the uncertainty about the position of the moving dot. %
+Second, it demonstrates the flexibility of the representation used in the parodiction hypothesis %
+and its capacity of subsuming the differential latency, motion extrapolation and postdiction hypotheses. Hence, the diversity of alternative models drawn to account for the various FLE experiments is not necessary, thanks to the probabilistic mechanisms used by the visual system to decode this information. %%
+%---------------------------------------------------------------------%
+%: fig:FLE_MotionReversal
+\begin{figure}
+\centering{%
+\if 0\Draft
+\if 0\Pace %
+\includegraphics[width=\textwidth]{FLE_MotionReversal} %
+\else %
+\includegraphics[width=\textwidth]{Fig6} %
+\fi %
+\else
+Figure 6 around here
+\fi
+}%
+\caption{
+\textbf{Estimating the dot position from the dMBP model
+during the motion reversal experiment.}
+In the motion reversal experiment, the moving dot reverses its direction
+at the middle of the trajectory (i.e., at $t=500~\ms$,
+as indicated by the mid-point vertical dashed line).
+In the left column (target layer) and as in Fig~\ref{fig:FLE_histogram}, 
+we show the histogram of inferred positions
+during the dot motion and a trace of its position with the highest probability
+as a function of time.
+As expected, results are identical to Fig~\ref{fig:FLE_histogram}
+in the first half period.
+At the moment of the motion reversal,
+the model output is consistent with previous psychophysical reports.
+First, the estimated position follows the extrapolated trajectory
+until the (delayed) sensory information about the motion reversal reaches the system
+(at $t=600~\ms$, green vertical dashed line).
+Then, the velocity is quickly resetted and converges to the new (reversed) motion
+such that the estimated position ``jumps'' to a position corresponding
+to the updated velocity.
+In the right column (smoothed layer), we show the results of the same data
+after a smoothing operation of $\tau_s=100~\ms$ in subjective time.
+This different read-out from the inferred positions
+corresponds to the behavioral results obtained in some experiments,
+such as that from~\citet{Whitney98}.
+\label{fig:FLE_MotionReversal}}%
+\end{figure}
+%---------------------------------------------------------------------%
+%-----------------------------------------------------------------%
+\subsection{Modeling the effects of stimulus contrast and duration on the Flash-Lag effect}
+%-----------------------------------------------------------------%
+%---------------------------------------------------------------------%
+%<*ContrastIntro>
+% what we expect
+% R3 Unfortunately, the description of results in section 3.4 still lacks clarity and needs further attention. Fig 5 should directly illustrate the effect of different contrast ratios on the magnitude of the flash-lag effect. Instead, Fig. 5A shows pdfs as a function of contrast, all centered at the same position but with different amplitude/probability. Since the spatial shift in the two distributions is approximately constant for all contrast levels, the results seem to support the claim that at mid-position manipulating the contrast of the dots has little impact on the FLE. If this interpretation is correct, please state this explicitly in the text including a more quantitative description of the meaning of “little/less effect” . The statement in the figure caption “Note that for the moving dot at mid-point phase, the model responds earlier to lower values of contrasts (compared to what?) ” is not clear and seems not in line (?) with the understandable statement in the body text “for lower contrast the dynamics of integration was slower and thus the peak was reached later”.
+We have shown above that the dMBP model %
+can explain the different variants of the FLE. %
+In order to further understand how the precision of the probabilistic representation shapes the FLE, %
+we manipulated a small set of key visual  parameters which are known to tune %
+the dynamics of the dMBP model: stimulus contrast and duration. %
+As shown in our previous modeling study %
+about the role of motion extrapolation in object tracking~\citep{Khoei13}, %
+decreasing the contrast of a moving stimulus %
+results in a modified dynamics of the predicted state. %
+One important consequence is that a predictable, moving stimulus %
+may then be detected at lower contrasts than an unpredictable flash %
+since the system integrates sensory information along the motion trajectory. %
+This is consistent with previous psychophysical observations %
+about single dot motion detection in a noisy display~\citep{Watanamiuk94}. %
+However, since contrast differentially modulates the processing of either flashed or moving stimuli, it is important %
+to investigate its effects upon simulated FLE. A prediction is that %
+a flashed stimulus shall be more affected by lowering the contrast than a moving one, resulting in different effects upon FLE. %
+We could then unify several empirical evidences that have led to different theoretical interpretation %
+of FLE  (e.g.~\citep{Purushothaman98, Kanai04}).
+
+%</ContrastIntro>
+%
+%-----------------------------------------------------------------%
+%: fig:FLE_contrast
+\begin{figure}
+\centering{%
+\if 0\Draft
+\if 0\Pace %
+\includegraphics[width=\textwidth]{FLE_contrast} %
+\else %
+\includegraphics[width=\textwidth]{Fig7} %
+\fi %
+\else
+Figure 7 around here
+\fi
+}%
+\caption{
+%<*ContrastCaption>
+\textbf{
+Dependence of the FLE with respect to contrast and duration of the stimuli.} %
+{\sf (A)}~Using the same data format as in Fig~\ref{fig:FLE_histogram}, %
+we show the spatial distribution  %
+of the estimated response (zoomed around its physical position %
+at the perceived time of the flash at full contrast which is indicated by a cross) %
+for different different relative contrast levels $C$ indicated at each rows. %
+The different columns correspond from left to right to different conditions where the contrast of the dot %
+is manipulated (first two columns) ---respectively at the beginning of the cycle (i.e. flash-initiated) cycle, the mid-point (i.e. standard cycle)--- % 
+ or where the contrast of the flash is varied (right-end column). %
+Note that in the standard FLE case (middle column), %
+the model already responds to very low values of dot contrast in a nearly %
+all-or-none fashion. %
+By comparison, the responses to the dot or the flash during the initial phase of the trajectory gradually  increased with contrast. %
+In particular, the dot's lag seems to increase more rapidly with respect to contrast. %
+{\sf (B)}~These qualitative results are best illustrated by plotting in the first column %
+the precision of the response as measured by the inverse standard deviation of the estimated position %
+as a function of contrast of the different conditions. %either flashed (red) or moving dot at early- (blue) or mid-point (green) phases of a motion trajectory. %
+Coherent with the results illustrated in (A), %
+the precision of the representation %
+varies gradually against contrast of the flash or moving dot in the early phase whereas it changes %
+more rapidly and abruptly as a function of the moving dot's contrast in the standard FLE. %
+Consequently, we estimated in the second column the spatial lag that is expected when changing %
+the contrast of the stimuli ($\pm$ one standard deviation). %
+Coherently with psychophysical results, %
+%decreasing the contrast of the flash decreases the FLE and symmetrically, 
+increasing the contrast of the moving dot gradually increases %
+the FLE in the flash-initiated cycle but has only limited effects in the standard FLE %
+when above a given precision as it rapidly reaches a saturating value of $\approx 0.2$  %
+corresponding to a full compensation of the fixed delay. %
+Consistent with~\citep{Kanai04}, %
+these results show the role of spatial uncertainty in dynamically tuning the estimated position %
+and, ultimately, in influencing the spatial lag in the FLE. %
+{\sf (C)}~As shown by~\citep{Cantor2007}, flash duration modulates FLE. %
+We show here the precision for the flash as a function of time %
+with respect to duration. %
+While the peak remained at $t=.5~\s$ (that is, at $t=.6~\s$ when including the delay), %
+we tested for different durations, respectively $.03, .05, .08, .13, .25$ in \s\ %
+(as marked by colored horizontal bars). %
+The respective measured time to reach the maximal precision are given by $t_{max}$ (in $\s$), showing %
+that precision was high for $T\ge .05~\s$ (that is, $50~\ms$). %
+Notice that this value was used for all the experiments described above. %
+%</ContrastCaption>
+\label{fig:FLE_contrast}}%
+\end{figure}
+%---------------------------------------------------------------%
+
+% results
+%<*FlashContrast>
+% R3: It would be also interesting to indicate for the specific parameter setting used the threshold value below which coherent motion tracking is not possible anymore. Still, this threshold should be lower than the detection threshold for the flash. I do not understand how Fig. 5C supports the claim that the FLE in the flash-initiated cycle gradually increases with contrast of the moving dot, but such a manipulation has little/less effect on the FLE at the standard mid-position. Both curves show a gradual increase with saturation, albeit with different amplitudes. In a similar vein, Fig. 5B shows that the precision measure increases continuously with contrast for the flash and the moving dot at the initial-phase AND the mid-phase. Again, I do not understand the qualitative difference the authors claim between the flash and the initial conditions on the one hand and the mid condition on the other hand (below contrast level C=1, the red and green-solid curves are quite similar).
+
+We first simulated the relationship between FLE and the relative contrast between the dot and the flash, %
+in two different conditions, the standard cycle (i.e. flash at mid-point) and the flash-initiated cycle. %
+These two conditions correspond to cases where we observe the precision of the dot position early or late along a similar motion trajectory. %
+The results are illustrated in Fig~\ref{fig:FLE_contrast}-A. Using the same conventions as in  Fig~\ref{fig:FLE_histogram}, %
+the estimated distributions of horizontal positions are plotted against time. %
+These spatial distributions are the average over $20$ trials and are shown for a time lapse centered around the maximal precision of flash stimulus. %
+The first two columns show these distribution as estimated at two different time epochs,  %
+that is early or late during a motion trajectory, %
+respectively corresponding to flash-initiated or standard FLE conditions. %
+Early distributions are strongly sensitive to dot %
+ and flash contrast, with almost no reliable estimate at very low contrast (i.e. below $C\approx0.4$). By comparison, %
+the distributions for the dot at the standard FLE cycle emerge at very low contrast, and rapidly reach their stable solution. %
+In the temporal domain, we also observed that for lower contrasts, %
+the dynamics of integration became slower such that the peak was reached slightly later. %
+Fig~\ref{fig:FLE_contrast}-B quantitatively reports the effects of contrast %
+on the precision of the estimated position %
+(that we define here as the inverse of the standard deviation). %
+During the flash-initiated cycle, we found a smooth increase in precision with higher contrast of either the moving dot (blue curve) or the flash (red curve). The contrast-precision function was much more step-wise in the standard cycle condition where dot position is estimated at the mid-point of the motion path. %
+The precision was also much larger in this later condition.  %
+From these, we estimated the spatial lag (second column, Fig~\ref{fig:FLE_contrast}-B) against contrast. %
+A prediction of our model is %
+that a broader distribution in position, %
+such as observed with a lower stimulus contrast, would be %
+associated with a coarser velocity estimation. %
+Such uncertainty  would impact the extrapolation of positional error %
+and thus the spatial lag. As expected, we found a large increase in the spatial lag %
+as the contrast of the dot increased in the flash-initiated cycle (blue line). % 
+This effect was largely reduced in the classical FLE condition (green line). %
+We also varied the contrast of the flash and found, for a contrast above $C\approx0.5$, a decrease in the spatial lag as contrast increased, %
+as expected from the precision measurements. Notice that estimating the spatial lag for very low contrasts is very unreliable given %
+the high spatial uncertainty in the position estimation (see Fig~\ref{fig:FLE_contrast}-A, lower rows). %
+
+%</FlashContrast>
+
+% interpretation
+%<*FleContrast>
+% R3: Opposite to what is stated in the text, there is no direct comparison with the experimental results in references (33=Purushothaman98) and (38=Kanai04). As mentioned in my previous comments, a strong increase of the standard FLE has been reported when the detectability (luminance) of the moving dot is increased relative to the detectability of the flash. The authors should clearly state that the dMBP model does not explain this finding since once detected a moving dot is tracked with similar precision independent of the exact contrast level. In my view, for the dMBP model (including the smoothing procedure) it would be more promising to discuss the impact on contrast and the corresponding uncertainty level for the FLE at the end of the motion trajectory. This would allow to compare model predictions qualitatively with the results in (38). In fact, the authors claim several times in the result section that their probabilistic approach explains seemingly contradicting results observed with the flash-terminated cycle (e.g., p. 23, 29). I would like to suggest to simply show this directly in snapshots of model simulations (like in Fig. 4) by systematically varying the relative contrast of flash and moving dot.
+
+Overall, the dMBP model can simulate the main effects of the relative contrast between the flash and the dot, in different conditions. %
+These simulated relationships can be compared with previous empirical studies that investigated the impact of contrast upon perceived FLE %
+~\citep{Purushothaman98,Kanai04} (see~\citep{Hubbard14} for a review). %
+Consistent with previous results~\citep{Perrinet12pred}, %
+we observed that contrast affects the precision of position estimates mostly at the beginning of the motion trajectory, as in the flash-initiated cycle for instance. %
+Since the model started to efficiently track the dot at a later time point, a weaker flash-initiated FLE is observed at lower contrast values. %
+By comparison, at trajectory points that are more distant from the motion onset, as in the standard FLE condition, the tracking remained very precise at %
+low contrast and thus, the size of the FLE was only marginally affected. Overall, our model unifies the different observations %
+that the uncertainty generated by lower effective contrast (and other stimulus conditions) results in lower FLEs~\citep{Kanai04}. %
+Our model also allows to compare the relative effects of the %
+moving versus flashed dots. For instance, the spatial lag increases with the relative contrast of the moving dot, but slightly reduces with it. %
+This is consistent with a previous empirical study~\citep{Purushothaman98}. % 
+It shall be noticed that these authors have manipulated %
+the relative luminance of the stimuli rather than contrast. However,  %
+assuming a stationary exogenous noise source, %
+luminance and contrast changes shall yield to similar model outputs. %
+Thus, our model is compatible with their results but it does so by compensating for %
+a fixed delay, without the need of postulating different latencies for moving and flashed inputs~\citep{Purushothaman98}  %
+
+% TODO duration~\citep{Cantor2007} ?
+%</FleContrast>
+
+%<*FlashDuration>
+% R3: I agree with the concern expressed by reviewer 2 that skeptical readers might attribute the model predictions to the untypically long flash duration and temporal averaging. The authors justify their choice based on the time course of precision and claim that the FLE should disappear with even longer flash duration. Again, it will be important that interested readers may have the opportunity explore the dependence on the parameters of the likelihood model that control the integration time.
+
+As a final control, we manipulated flash duration. %
+While we did not observe any effect of this stimulus parameter on the mean estimated position, %
+the precision was dynamically modulated by it %
+(see Fig~\ref{fig:FLE_contrast}-C). %
+We observed a characteristic integration time controlled %
+by the $\sigma_I$ parameters of the likelihood model (see Table~\ref{tab:model}). %
+By consequence, precision at the peak decreased %
+with very short durations (3 frames, that is, $30~\ms$). %
+Then, the precision quickly stabilized over the stimulation duration, consistently with %
+the stationary solution of the master equations of the MBP model. %
+The varying timing corresponding to the optimal precision %
+with respect to flash duration %
+thus has a consequence on the FLE. %
+However, such consequences are harder to estimate in our framework, %
+in particular for durations longer than $\tau$. %
+In these particular cases, the maximum of the estimated position was ambiguously defined %
+and did not necessarily correspond to the middle of the flash. %
+Rather, since information was progressively integrated, %
+the precision was in theory increasing and should be reported to peak as the flash disappears. %
+As such, the spatial lag in the FLE should decrease with longer flash durations. %
+This is consistent with experimental reports on the disappearance of the FLE %
+for flash durations longer than $80~\ms$~\citep{Cantor2007}. %
+This result also justifies that in the present study we used a short flash of $5$ frames, that is, $50~\ms$. %
+%</FlashDuration>
+% -----------------------------------------------------------%
+\section{Discussion}
+\label{sec:dis}
+% -----------------------------------------------------------%
+\subsection{Motion-based prediction, position coding and the flash-lag effect}
+%: summary of manuscript - what was our question - what we have done
+% -----------------------------------------------------------%
+In this computational study, we have investigated the role of prediction in a challenging
+and popular example of motion-induced position shifts, the flash-lag effect (FLE).
+When elaborating a novel theoretical framework for both experimental and modeling studies on FLE
+is an essential step to better understand the perceptual mechanisms of visual position coding
+and the compensation for the delays inherent to any neural mechanism.
+As stated above, at least three main explanations of the FLE have been proposed
+in the literature but none of them can account for all the properties of the FLE.
+Based on our previous work on predictive coding and visual motion processing
+~\citep{Perrinet12pred, Khoei13, Kaplan13, KaplanKhoei14},
+we propose that the FLE and its different variants are
+a mere consequence of a motion-based predictive coding mechanism 
+that is compatible with low-level visual processing.
+
+Our simulations demonstrate that the motion of a localized target
+can shift the estimation of its position along the motion direction.
+We introduced a second flashed input lasting $5\%$ of the trajectory length
+which we presented at the beginning, middle and end of the trajectory,
+matching the three main empirical cases used to probe the FLE~\citep{Nijhawan02}.
+We show that the diagonal motion-based prediction (dMBP) model can explain
+the presence or absence of a spatial lead of the moving stimulus
+in all these three variants of the FLE.
+In particular, the model can simulate one main perceptual fact:
+the spatial offset is seen in the flash initiated cycle but not in the flash terminated cycle.
+For the first time, our model can thus provide an explanation for all three empirical results,
+as a consequence of the optimal extrapolation in the positional coding
+of a moving object in the direction of its motion.
+
+This approach can be seen as an extension of the motion extrapolation theory
+originally proposed by~\citet{Nijhawan94} and
+which has been highly disputed over the last two decades.
+Our dMBP model is a generic motion estimation algorithm
+which uses a probabilistic representations
+that explicitly estimates the distribution of beliefs about the motion of the stimulus
+by using both position and velocity information about the object trajectory.
+The dMBP model is able to compensate for a known neural delay and to differentiate
+between moving (predictable) and static, flashed (unpredictable) objects.
+Moreover, we have shown that the precision of this belief
+tunes the gain of the predictive coding mechanism
+similarly to the range of psycho-physical observations.
+It thus provides a rationale for coding the estimated position
+of both the flashed and the moving stimuli in the FLE. %
+% ----------------------------------------------------------------------%
+\subsection{Experimental evidences for the dMBP model}
+% ----------------------------------------------------------------------%
+This study provides several theoretical insights on the role of motion signals
+in the dynamical representation of objects' positions and its dependency
+upon several visual factors such as speed, contrast, duration or the timing
+of the flash respective to the motion trajectory.
+Several psychophysical and neurophysiological studies have shown that the perceived position
+of a moving object is shifted into the direction of motion,
+a phenomenon called motion extrapolation
+(e.g.~\citep{Nijhawan94,Berry99,Whitney02,Jancke04,Maus10a,Maus13nr,Maus13cc}).
+Motion extrapolation has been assumed to be caused by an anisotropic pattern
+of connectivity between position-coding cells in the retina~\citep{Nijhawan94,Berry99,Whitney02}
+or the early visual cortex~\citep{Jancke04}.
+Thus, different modeling studies have simulated motion-induced position shifts
+by using position-tuned cells and dynamical effects of lateral interactions
+in neural networks~\citep{Erlhagen03,Baldo05,Lim06,Lim08,Musseler02}.
+We show here a similar behavior, resulting from the interactions
+between position and velocity coding.
+We suggest that a predictive bias of the neural representation of position
+can result from these interactions,
+a general rule of early visual processing stages within retinotopic maps.
+Moreover, contrary to most of previous models,
+the dMBP model can simulate the relationships between the perceived positional shift
+in the FLE and properties of the object's motion.
+This later relationship is coherent with previously reported psychophysical studies~\citep{Wojtach08}
+and highlights the interactions between position and velocity coding.
+
+In particular, from previous computational studies in motion extrapolation,
+one may expect a smaller spatial lead in the flash-initiated cycle.
+In the earliest frames of the trajectory,
+position estimation will in fact lag behind the actual, physical position of the stimulus.
+We have not found this effect with the dMBP model.
+Only a few frames within the flash duration were sufficient
+to modulate the position estimation of the moving object and to compensate for the delay.
+Thus, the dMBP model does predict no significant difference
+between the size of spatial leads simulated in flash-initiated and standard FLEs.
+On the other hand, in the response of the dMBP model to the flash terminated FLE,
+there is a close match between the estimated positions of both flashed and moving stimuli,
+consistent with the psychophysical evidence.
+This effect is easily explained by the interplay between the input sensory layer
+and the predictive target layer at the instant when the flash is sensed.
+At this precise time, the estimated velocity for the moving dot is updated
+with hindsight to a distribution centered on a zero speed,
+causing a static extrapolation at the end of the trajectory and
+correcting for the wrongly assumed motion of the dot during the delay period.
+This causes the ``jump'' from the extrapolated trajectory to that observed 
+at the instant of the flash.
+% todo prediction FLE with an occlusion Consistantly with our previous study on motion extrapolation~\citep{Khoei13}, we also predict that such effect should .
+Such prediction should be investigated at perceptual and physiological levels in future work.
+
+Another empirical aspect of the FLE is the dependence of the spatial lead
+with respect to contrast~\citep{Purushothaman98,Kanai04}.
+In fact, the dMBP model is based on the accumulation of information along the trajectory,
+without any pre-determined contrast gain control mechanism.
+As a result, a low contrast would only result in a slower build-up of the tracking behavior,
+as previously observed~\citep{Perrinet12pred}.
+Here, the dMBP model highlights two important points in the contrast dependence of the FLE.
+First, for the flash initiated cycle, a higher contrast would result
+in a larger spatial lead of the moving object.
+Second, for both standard and flash terminated cycles, that is, for positions located late enough
+along the object's motion trajectory, the dependence of spatial lead on contrast
+can be mostly explained by the contrast of the flashed input,
+as shown by the relationship illustrated in Fig~\ref{fig:FLE_contrast}.
+Indeed, consistent with experimental evidence~\citep{Kanai04},
+the model's response to a low contrast flashed stimulus takes longer
+to reach the detection threshold such that the moving stimulus will further advance
+along the trajectory before the input arrives, resulting in a larger positional lead.
+% ----------------------------------------------------------------------%
+\subsection{Shortcomings of the motion extrapolation theory}
+% ----------------------------------------------------------------------%
+It is important to highlight some key differences between our dMBP model
+and previously published models based on motion extrapolation.
+In the literature, two main shortcomings of motion extrapolation were raised.
+First, it was found experimentally that the spatial lead of moving object
+in flash-initiated cycle is comparable with the spatial lead observed in standard FLE.
+This is in contradiction with the fact that,
+according to the motion extrapolation hypothesis,
+the positions of the two objects should not be distinguishable enough
+during the earliest phase of the motion trajectory.
+By contrast, the dMBP model shows a quantitatively
+similar positional lead in flash-initiated cycle.
+This result resolves an apparent shortcoming of the motion extrapolation theory:
+the duration of the flash is enough to initiate the integration
+of motion signals along its trajectory and
+to correctly compensate for the positional error caused by neural delays.
+
+Another classical shortcoming of the motion extrapolation theory
+is related to the flash-terminated cycle.
+Empirically, no spatial lead or overshoot is perceived
+for flashes occurring at the end of trajectory
+whereas the motion extrapolation model would predict one.
+Because of this contradiction, several of the existing models decided
+to ignore the flash-termination FLE.
+For instance, the model of~\citet{Wojtach08} did not use probabilities to represent motion
+but simply the optimal estimate of speed using an empirical prior.
+One consequence is that, as in the motion extrapolation model of~\citet{Nijhawan02},
+such models do not predict the lack of effect for flash terminated cycle.
+In contrast, the dMBP presented herein implements a velocity-dependent
+position extrapolation based on a probabilistic representation,
+which is flexible enough to cease prediction of the trajectory after the motion's stop.
+
+As argued by~\citet{Nijhawan02}, the motion extrapolation model
+is a powerful hypothesis for the estimation of the motion of smoothly moving objects.
+However, as soon as a significant transient input modifies the stimulus,
+other supplementary mechanisms must be postulated to modulate the extrapolation computation.
+In the dMBP model, the internal model of visual motion progressively
+integrates confidence about the trajectory. We have shown previously
+that this mechanism may be sufficient to fill a short blank along the trajectory~\citep{Khoei13}.
+Still, even in this ``tracking state''~\citep{Perrinet12pred},
+the dynamical system is sensitive enough to be modulated by changes of the stimulus' state,
+such as a sudden stop or a motion reversal. Knowing the neural delay, this stop will correct
+the path of the trajectory over this period in order to update the actual position
+of the object at the present time. A strong improvement over other motion extrapolation models
+is that the dMBP model does not have to postulate any other specific mechanism 
+such as the resetting mechanism in the postdiction hypothesis.
+This correction is entirely handled within the motion-based predictive mechanism
+by the probabilistic computations.
+We thus provide a new computational evidence that motion extrapolation
+is a successful explanation for the FLE when separating
+the smooth prediction of the trajectory
+which is based on motion coherency (i.e. $p(z_{t-\tau} | I_{0:t-\tau})$)
+from its projection at the present time (i.e., $p(z_{t} | I_{0:t-\tau})$).
+Therefore, the inferred trajectory does not necessarily need to be smooth
+as it can be corrected with the hindsight corresponding to the known delay.
+In summary, our new theoretical framework of the motion extrapolation hypothesis
+can reproduce the experimental data of the main variants of the FLE,
+a clear advantage over all other previous models.
+%
+Overall, we show that an internal representation of object motion can provide
+a substrate for the coherency of its perceived motion
+despite the existing neural delays as well as a transient interruption
+in the sensory inflow~\citep{Perrinet12pred, Khoei13}.
+It can thus provide a more reliable interpretation of the visual input.
+Herein, we have investigated the functional advantages of using
+both position and velocity information in building this internal model.
+% ----------------------------------------------------------------------%
+\subsection{Comparison with other neuromimetic models for FLE}
+% ----------------------------------------------------------------------%
+How does our theoretical work relate to previous modeling work using neuromimetic networks?
+The neural field model of~\citet{Erlhagen03} is the most relevant study demonstrating
+that the emergence of a spatial lead in the FLE can result from the interplay
+between an internal model and a feedforward flow of stimulus-induced neural activity
+(but see also~\citep{Musseler02}).
+Their network was made of excitatory and inhibitory populations of position coding cells. 
+Motion extrapolation of the trajectory emerges
+from both lateral interactions and network's dynamics.
+This model showed that the priming of a position field is caused
+by the accumulation of sub-threshold activities of excitatory populations.
+Our model also highlights the role of the internal model of trajectory,
+where the internal model was based on the accumulation of motion information.
+The main difference between the dMBP and Erlhagen's models is
+the use of velocity information and not only position coding.
+Still, both models stress the critical role of sub-threshold neural activities
+in the emergence of motion anticipation and extrapolation.
+In Erlhagen's model, this is achieved by finely setting some parameters of the neural field.
+On the contrary, motion anticipation and extrapolation
+both emerge in the dMBP model from the probabilistic accumulation
+of motion-based position estimation along the motion trajectory.
+
+Only a few other neural network models have directly addressed both delay compensation,
+motion extrapolation and FLE.
+For instance, the model of~\citet{Baldo05} investigated how motion extrapolation
+and FLE may arise from a simple feed-forward network of leaky integrate and fire neurons.
+Other neural network models have addressed the question of neural delays
+and motion extrapolation at the single neuron level~\citep{Lim06, Lim08}.
+In these models, neurons are sensitive to the rate of change in the input and,
+via extrapolative activations they can estimate the state
+of external world at time $t + \tau$ instead of time $t$.
+On one hand, facilitatory activity is derived from the present and
+past activity of network and on the other hand, synaptic efficacy implements
+a smoothness constraint in the spiking activity which implements motion coherency.
+Therefore, spiking activity is extrapolated in the direction of change
+via a spike-time dependent learning rule along with facilitated synapses.
+However, these models have investigated spatial priming of neurons
+via lateral and facilitatory connections, ignoring the facilitatory effect
+that may arise from velocity coding.
+
+Last, the dMBP model is partly consistent with the theoretical framework
+underpinning the postdiction model of FLE~\citep{Eagleman00}.
+Both models infer variables using a state space model from a dynamical model
+of the moving stimulus.
+Prediction and postdiction mechanisms can be related to two essential components
+of dynamical systems in engineering: filtering and smoothing, respectively.
+The former has access to the immediate past of the signal to estimate the
+current state and the later model estimates the current state based on the immediate future.
+The main difference between the two models is that we use a filtering approach
+while the formulation proposed by~\citet{Rao01} rather adds a smoothing component.
+As we have illustrated in the motion reversal experiment,
+we can also easily integrate such a smoothing
+but we have shown that this additional component is not necessary to explain other aspects of the FLE.
+As such, both models can reproduce the Fr\"{o}hlich effect
+as a mis-estimation of earliest part of the trajectory,
+but the postdiction model interprets that the visual system attributes
+a position to a visual event only when it accumulated enough sensory evidence
+within the sensory integration time window. However our simulations suggested
+the important role of velocity information in this compensation,
+while the postdiction theory would propose that the position of stimulus
+is always pushed forward based on trajectory information received
+in a short time interval after time $t$. Lastly, contrary to the dMBP model,
+the postdiction model fails to account that in the standard FLE,
+no velocity increment for moving stimulus has been reported psychophysically~\citep{Nijhawan02}. 
+In brief, while having similar mathematical formulations, the postdiction and 
+dMBP models make different predictions, 
+in particular regarding the earliest part of the motion trajectory.
+These predictions could be tested psychophysically in future work.
+%By contrast, the postdiction hypothesis associates a position to the moving object which is influenced by its future positions. There is a fundamental difference with the dMBP theory. Postdiction states that these effects are the consequence of the read-out mechanisms of the processes accounting for visual awareness. By contrast, we propose that these effect are present at a low level of neural information processing, consistently with the idea proposed by~\citet{Krekelberg_science} on temporal integration. These authors suggested that FLE is caused by the motion of the moving stimulus after the flash onset, as the differential processing of the trajectories of both stimuli (trajectory versus no trajectory in the case of flash) leads in different dynamics for the integration.
+% ----------------------------------------------------------------------%
+\subsection{Parodiction: An unified model for motion extrapolation.}
+% ----------------------------------------------------------------------%
+% παρόν : https://en.wiktionary.org/wiki/%CF%80%CE%B1%CF%81%CF%8C%CE%BD
+% γνῶσις instead of diction ?
+% provlepi
+% diction is in the sense of decision not awareness
+Our computational study suggests that 
+the psychophysical evidences for the different variants of the FLE
+are the signatures of a fundamental neural mechanism that attempts
+to represent as best as possible the available information at the veridical physical time.
+The central nervous system is a complex dynamical, distributed machinery
+for which timing is essential. However, there is no evidence for the existence
+of a central clock as used in modern computers.
+Instead, neural computations are thought to be based
+on an \emph{asynchronous} processing machinery.
+Even worse, some of these information bits are retarded
+by a range of inevitable transmission and computing delays.
+We suggest that an explicit neural representation of variables's trajectories
+could compensate for these delays in order to represent each physical input
+at its present, physical time.
+Knowing these delays, motion extrapolation pushes the estimated position forward
+using the trajectory's information. %
+This paper thus proposes that the visual system
+exhibits the trace of an universal neural signature
+of a predictive processes compensating for neural delays.
+As such, in contrast to prediction and postdiction,
+a better term to explain this neural signature is \emph{parodiction},
+from the ancient Greek $\pi\alpha\rho \acute o\nu$, the present time.
+
+%<*DiffLatency>
+% neural delays - perceiving the present
+In the dMBP model, the dynamics for position coding is based on optimizing %
+the probabilistic accumulation of information along the trajectory %
+such as to be the most consistent at the present time. %
+The dMBP model builds motion estimations at time~$t$ based %
+on sensory information from the past (at time $~t-\tau$) and %
+thus explains how neural delays may be compensated in visual processing. %
+As a consequence, our model should be considered as an effort %
+in understanding why phenomena such as the FLE should emerge. %
+An utterly important question remains as to \emph{how} this is achieved. %
+Such attempts were advanced in several studies %
+using a single paradigm for the different variants of the FLE~\citep{Musseler02}. %
+Further modeling accounts were proposed to show that such a function %
+could be implemented using asymmetric traveling waves~\citep{Kirschfeld1999} %
+(see~\citep{Jancke04} for a more formal account). %
+Our model offers to bridge and unify these different theories %
+beyond the existing debate between proponents of differential latency and motion extrapolation. %
+In particular, we propose an architecture which is parameterized by an anisotropic pattern of connectivity %
+(see Fig~\ref{fig:DiagonalMarkov}-C). %
+Key in that endeavor is a more precise knowledge %
+as to how neural activity can dynamically code or decode %
+a probabilistic representation of motion. %
+%</DiffLatency>
+
+%<*GeneralityParodiction>
+More generally, our new parodiction theory anchors any neural representation %
+to the actual present time. %
+Indeed, when considering any neurophysiological recording %
+it is often assumed that the exact timing of each event, such as a spike, %
+is known by the corresponding neural system relative to an absolute clock %
+(for instance, that of the experimenter). %
+However, the situation is different when overturning the problem relative %
+to each individual neuron: For a neuron, the absolute time is unknown and %
+only some relative timing of other neural events %
+(their origin being sensory, motor or associative) may be inferred from previous experience. %
+Also, the neuron has no access to past information %
+and can only use traces of past neural activity at the present time. %
+We claim that this problem is a generic problem in neuroscience %
+as it raises the problem of the neural representation in time~\citep{PerrinetAdamsFriston14}. %
+To conclude, we have proposed a theory, parodiction, %
+which accounts for the FLE, but whose predictions remain to be validated in neurophysiology. %
+%</GeneralityParodiction>
+%
+\section*{Acknowledgments}
+\Acknowledgments
+%
+\if 1\Draft
+	\nolinenumbers
+\fi
+%\bibliographystyle{unsrtnat_nourl}%
+%\bibliographystyle{plainnat}%
+% Use the PLoS provided BiBTeX style
+%\bibliographystyle{plos2015}
+%\bibliography{bib/khoei17fle}
+\begin{thebibliography}{10}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+ \providecommand{\doi}[1]{doi: #1}\else
+ \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+
+\bibitem[Lisberger(2010)]{Lisberger2010}
+Lisberger SG.
+\newblock Visual guidance of smooth-pursuit eye movements: sensation, action,
+  and what happens in between.
+\newblock Neuron. 2010 May;66(4):477--91.
+\newblock Available from: \url{http://dx.doi.org/10.1016/j.neuron.2010.03.027}.
+
+\bibitem[Masson and Perrinet(2012)]{Masson12}
+Masson GS, Perrinet LU.
+\newblock The behavioral receptive field underlying motion integration for
+ primate tracking eye movements.
+\newblock Neuroscience \& Biobehavioral Reviews. 2012 Jan;36(1):1--25.
+\newblock Available from:
+ \url{http://dx.doi.org/10.1016/j.neubiorev.2011.03.009}.
+
+\bibitem[Montagnini et~al.(2015)Montagnini, Perrinet, and Masson]{Montagnini15bicv}
+Montagnini A, Perrinet LU, Masson GS.
+\newblock 27.
+\newblock In: Keil M, Crist\'{o}bal G, Perrinet LU, editors. Visual motion
+ processing and human tracking behavior. Wiley, New-York; 2015. .
+
+\bibitem[Nijhawan(1994)]{Nijhawan94}
+Nijhawan R.
+\newblock Motion extrapolation in catching.
+\newblock Nature. 1994 Jul;370(6487).
+\newblock Available from: \url{http://dx.doi.org/10.1038/370256b0}.
+
+\bibitem[Inui and Kakigi(2006)]{Inui06}
+Inui K, Kakigi R.
+\newblock Temporal Analysis of the Flow From V1 to the Extrastriate Cortex in
+  Humans.
+\newblock Journal of Neurophysiology. 2006;96(2):775--784.
+
+\bibitem{Baldo02}
+Baldo MVC, Ranvaud RD, Morya E.
+\newblock Flag errors in soccer games: the flash-lag effect brought to real
+  life.
+\newblock Perception. 2002;31(10):1205--1210.
+\newblock Available from: \url{http://dx.doi.org/10.1068/p3422}.
+
+\bibitem{Franklin11}
+Franklin DW, Wolpert D.
+\newblock Computational mechanisms of sensorimotor control.
+\newblock Neuron. 2011;72:425--442.
+
+\bibitem[Perrinet et~al.(2014)Perrinet, Adams, and Friston]{PerrinetAdamsFriston14}
+Perrinet LU, Adams RA, Friston K.
+\newblock Active Inference, eye movements and oculomotor delays.
+\newblock Biological Cybernetics. 2014;.
+
+\bibitem{Nijhawan10}
+Nijhawan R, Khurana B, editors.
+\newblock Space and Time in Perception and Action.
+\newblock Cambridge Univ Press; 2010.
+
+\bibitem[MacKay(1958)]{MacKay58}
+MacKay DM.
+\newblock {Perceptual Stability of a Stroboscopically Lit Visual Field
+  containing Self-Luminous Objects}.
+\newblock Nature. 1958 Feb;181(4607):507--508.
+\newblock Available from: \url{http://dx.doi.org/10.1038/181507a0}.
+
+\bibitem{Musseler02}
+M{\"{u}}sseler J, Stork S, Kerzel D.
+\newblock {Comparing mislocalizations with moving stimuli: The Fr{\"{o}}hlich
+  effect, the flash-lag, and representational momentum}.
+\newblock Visual Cognition. 2002 feb;9(1-2):120--138.
+\newblock Available from:
+  \url{http://www.tandfonline.com/doi/abs/10.1080/13506280143000359}.
+
+\bibitem{Eagleman07}
+Eagleman D, Sejnowski T.
+\newblock Motion signals bias localization judgments: a unified explanation for
+  the flash-lag, flash-drag, flash-jump, and Frohlich illusions.
+\newblock Journal of vision. 2007;7(4).
+
+\bibitem{Jancke09}
+Jancke D, Erlhagen W.
+\newblock Bridging the gap: a model of common neural mechanisms underlying the
+  Fr{\"o}hlich effect, the flash-lag effect, and the representational momentum
+  effect.
+\newblock In: Nijhawan R, Khurana B, editors. Space and Time in Perception and
+  Action. Cambridge Univ Press; 2010. p. 422--440.
+
+\bibitem[Berry et~al.(1999)Berry, Brivanlou, Jordan, and Meister]{Berry99}
+Berry M, Brivanlou I, Jordan T, Meister M.
+\newblock Anticipation of moving stimuli by the retina.
+\newblock Nature. 1999;398(6725):334--338.
+
+\bibitem[Jancke et~al.(2004)Jancke, Erlhagen, Sch{\"o}ner, and Dinse]{Jancke04}
+Jancke D, Erlhagen W, Sch{\"o}ner G, Dinse H.
+\newblock Shorter latencies for motion trajectories than for flashes in
+ population responses of cat primary visual cortex.
+\newblock The Journal of Physiology. 2004;556(3):971--982.
+
+\bibitem{Perrinet12pred}
+Perrinet LU, Masson GS.
+\newblock {Motion-Based} Prediction Is Sufficient to Solve the Aperture
+  Problem.
+\newblock Neural Computation. 2012 Oct;24(10):2726--2750.
+\newblock Available from: \url{http://dx.doi.org/10.1162/NECO\_a\_00332}.
+
+\bibitem{Khoei13}
+Khoei M, Masson G, Perrinet L.
+\newblock Motion-based prediction explains the role of tracking in motion
+  extrapolation.
+\newblock Journal of Physiology-Paris. 2013;107(5):409--420.
+
+\bibitem[Metzger(1932)]{Metzger32}
+Metzger W.
+\newblock Versuch einer gemeinsamen Theorie der Ph{\"a}nomene Fr{\"o}hlichs und
+  Hazelhoffs und Kritik ihrer Verfahren zur Messung der Empfindungszeit.
+\newblock Psychologische Forschung. 1932;16:176--200.
+
+\bibitem{Subramaniyan2013}
+Subramaniyan M, Ecker AS, Berens P, Tolias AS.
+\newblock {Macaque monkeys perceive the flash lag illusion.}
+\newblock PloS one. 2013 jan;8(3):e58788.
+\newblock Available from:
+  \url{http://www.pubmedcentral.nih.gov/articlerender.fcgi?artid=3602542&tool=pmcentrez&rendertype=abstract}.
+
+\bibitem[Nijhawan et~al.(2004)Nijhawan, Watanabe, Beena, and Shimojo]{Nijhawan04}
+Nijhawan R, Watanabe K, Beena K, Shimojo S.
+\newblock {Compensation of neural delays in visual-motor behaviour: No evidence
+ for shorter afferent delays for visual motion}.
+\newblock Visual cognition. 2004;11(2-3):275--298.
+\newblock Available from:
+ \url{http://web.ebscohost.com.gate1.inist.fr/ehost/detail?vid=3\&amp;\#38;sid=c40531b5-4a8d-48e4-8916-00de4c522855\%40sessionmgr198\&amp;\#38;hid=108\&amp;\#38;bdata=Jmxhbmc9ZnImc2l0ZT1laG9zdC1saXZl\#db=pbh\&amp;\#38;AN=12252348}.
+
+\bibitem[Nijhawan and Wu(2009)]{Nijhawan09}
+Nijhawan R, Wu S.
+\newblock Compensating time delays with neural predictions: are predictions
+ sensory or motor?
+\newblock Philosophical Transactions of the Royal Society A: Mathematical,
+ Physical and Engineering Sciences. 2009;367(1891):1063--1078.
+
+\bibitem[Maus et~al.(2010{\natexlab{a}})Maus, Khurana, and Nijhawan]{Maus10b}
+Maus GW, Khurana B, Nijhawan R.
+\newblock Space and Time in Perception and Action: History and theory of
+ flash-lag: past, present, and future.
+\newblock In: History and theory of flash-lag: past, present, and future.
+  Cambridge University Press New York, NY; 2010. p. 477--499.
+
+\bibitem[Whitney and Murakami(1998)]{Whitney98}
+Whitney D, Murakami I.
+\newblock {Latency difference, not spatial extrapolation}.
+\newblock Nat Neurosci. 1998 Dec;1(8):656--657.
+\newblock Available from: \url{http://dx.doi.org/10.1038/3659}.
+
+\bibitem[Whitney et~al.(2000)Whitney, Murakami, and Cavanagh]{Whitney00-1}
+Whitney D, Murakami I, Cavanagh P.
+\newblock {Illusory spatial offset of a flash relative to a moving stimulus is
+ caused by differential latencies for moving and flashed stimuli}.
+\newblock Vision Research. 2000 Jan;40(2):137--149.
+\newblock Available from:
+ \url{http://dx.doi.org/10.1016/s0042-6989(99)00166-2}.
+
+\bibitem[Krekelberg et~al.(2000)Krekelberg, Lappe, Whitney, Cavanagh, Eagleman, and Sejnowski]{Krekelberg_science}
+Krekelberg, Lappe, Whitney, Cavanagh, Eagleman, Sejnowski.
+\newblock {The Position of Moving Objects}.
+\newblock Science. 2000 Aug;289(5482):1107.
+\newblock Available from:
+ \url{http://dx.doi.org/10.1126/science.289.5482.1107a}.
+
+\bibitem[Schlag et~al.(2000)Schlag, Cai, Dorfman, Mohempour, and Schlag-Rey]{Schlag00}
+Schlag J, Cai RH, Dorfman A, Mohempour A, Schlag-Rey M.
+\newblock {Neuroscience: Extrapolating movement without retinal motion}.
+\newblock Nature. 2000 Jan;403(6765):38--39.
+\newblock Available from: \url{http://dx.doi.org/10.1038/47402}.
+
+\bibitem[Eagleman and Sejnowski(2000)]{Eagleman00}
+Eagleman DM, Sejnowski TJ.
+\newblock {Motion Integration and Postdiction in Visual Awareness}.
+\newblock Science. 2000 Mar;287(5460):2036--2038.
+\newblock Available from:
+ \url{http://dx.doi.org/10.1126/science.287.5460.2036}.
+
+\bibitem[Nijhawan(2002)]{Nijhawan02}
+Nijhawan R.
+\newblock {Neural delays, visual motion and the flash-lag effect.}
+\newblock Trends in cognitive sciences. 2002 Sep;6(9).
+\newblock Available from: \url{http://view.ncbi.nlm.nih.gov/pubmed/12200181}.
+
+\bibitem[Hubbard(2014)]{Hubbard14}
+Hubbard TL.
+\newblock The flash-lag effect and related mislocalizations: findings,
+ properties, and theories.
+\newblock Psychol Bull. 2014 Jan;140(1):308--338.
+
+\bibitem[Maus and Nijhawan(2006)]{Maus06}
+Maus GW, Nijhawan R.
+\newblock Forward displacements of fading objects in motion: the role of
+ transient signals in perceiving position.
+\newblock Vision research. 2006;46(26):4375--4381.
+
+\bibitem[Nijhawan(2008)]{Nijhawan08}
+Nijhawan R.
+\newblock Predictive perceptions, predictive actions, and beyond.
+\newblock Behavioral and Brain Sciences. 2008;31(02):222--239.
+
+\bibitem[Maus and Nijhawan(2009)]{Maus09}
+Maus GW, Nijhawan R.
+\newblock Going, going, gone: localizing abrupt offsets of moving objects.
+\newblock Journal of Experimental Psychology: Human Perception and Performance.
+  2009;35(3):611.
+
+\bibitem[Purushothaman et~al.(1998)Purushothaman, Patel, Bedell, and Ogmen]{Purushothaman98}
+Purushothaman G, Patel SS, Bedell HE, Ogmen H.
+\newblock {Moving ahead through differential visual latency}.
+\newblock Nature. 1998 Dec;396(6710):424.
+\newblock Available from: \url{http://dx.doi.org/10.1038/24766}.
+
+\bibitem[Krekelberg(2001)]{Krekelberg01}
+Krekelberg.
+\newblock {The persistence of position}.
+\newblock Vision Research. 2001 Feb;41(4):529--539.
+\newblock Available from:
+ \url{http://dx.doi.org/10.1016/s0042-6989(00)00281-9}.
+
+\bibitem[Krekelberg and Lappe(2000)]{Krekelberg00-1}
+Krekelberg B, Lappe M.
+\newblock {A model of the perceived relative positions of moving objects based
+  upon a slow averaging process}.
+\newblock Vision Research. 2000 Jan;40(2):201--215.
+\newblock Available from:
+  \url{http://dx.doi.org/10.1016/s0042-6989(99)00168-6}.
+
+\bibitem[Wojtach et~al.(2008)Wojtach, Sung, Truong, and Purves]{Wojtach08}
+Wojtach WT, Sung K, Truong S, Purves D.
+\newblock An empirical explanation of the flash-lag effect.
+\newblock Proceedings of the National Academy of Sciences.
+  2008;105(42):16338--16343.
+
+\bibitem[Changizi(2001)]{Changizi01}
+Changizi M.
+\newblock 'Perceiving the present' as a framework for ecological explanations
+ of the misperception of projected angle and angular size.
+\newblock Perception. 2001;30(2):195--208.
+
+\bibitem[Kanai et~al.(2004)Kanai, Sheth, and Shimojo]{Kanai04}
+Kanai R, Sheth BR, Shimojo S.
+\newblock {Stopping the motion and sleuthing the flash-lag effect: spatial
+ uncertainty is the key to perceptual mislocalization.}
+\newblock Vision research. 2004 Oct;44(22):2605--2619.
+\newblock Available from: \url{http://dx.doi.org/10.1016/j.visres.2003.10.028}.
+
+\bibitem[Adelson and Bergen(1985)]{Adelson85}
+Adelson EH, Bergen JR.
+\newblock Spatiotemporal energy models for the perception of motion.
+\newblock Journal of {O}ptical {S}ociety of {A}merica, {A}. 1985
+ Feb;2(2):284--99.
+\newblock Available from: \url{http://dx.doi.org/10.1364/josaa.2.000284}.
+
+\bibitem[Weiss and Fleet(2001)]{Weiss01}
+Weiss Y, Fleet DJ.
+\newblock {Velocity likelihoods in biological and machine vision}.
+\newblock In: In Probabilistic Models of the Brain: Perception and Neural
+ Function; 2001. p. 81--100.
+\newblock Available from:
+ \url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.32.1021}.
+
+\bibitem[Perrinet and Masson(2007)]{Perrinet07}
+Perrinet LU, Masson GS.
+\newblock Modeling spatial integration in the ocular following response using a
+ probabilistic framework.
+\newblock Journal of Physiology-Paris. 2007 Jan;101(1-3):46--55.
+\newblock Available from:
+ \url{http://dx.doi.org/10.1016/j.jphysparis.2007.10.011}.
+
+\bibitem[Burgi et~al.(2000)Burgi, Yuille, and Grzywacz]{Burgi00}
+Burgi PY, Yuille AL, Grzywacz N.
+\newblock Probabilistic Motion Estimation Based on Temporal Coherence.
+\newblock Neural Comput. 2000 Aug;12(8):1839--67.
+\newblock Available from: \url{http://portal.acm.org/citation.cfm?id=1121336}.
+
+\bibitem[Friston et~al.(2010)Friston, Stephan, Li, and Daunizeau]{Friston10d}
+Friston K, Stephan K, Li B, Daunizeau J.
+\newblock Generalised Filtering.
+\newblock Mathematical Problems in Engineering. 2010;2010:1--35.
+\newblock Available from: \url{http://dx.doi.org/10.1155/2010/621670}.
+
+\bibitem[Kaplan et~al.(2014)Kaplan, Khoei, Lansner, and Perrinet]{KaplanKhoei14}
+Kaplan BA, Khoei MA, Lansner A, Perrinet LU.
+\newblock Signature of an anticipatory response in area V1 as modeled by a
+  probabilistic model and a spiking neural network.
+\newblock In: Proceedings of the 2014 International Joint Conference on Neural
+  Networks; Beijing, China; 2014.
+
+\bibitem[Rao et~al.(2001)Rao, Eagleman, and Sejnowski]{Rao01}
+Rao RPN, Eagleman DM, Sejnowski TJ.
+\newblock Optimal Smoothing in Visual Motion Perception.
+\newblock Neural Computation. 2001 Jun;13(6):1243--1253.
+\newblock Available from:
+ \url{http://invibe.net/cgi-bin/biblio\_database\_access.cgi/Show?\_id=aeb1}.
+
+\bibitem{Vacher15}
+Vacher J, Meso AI, Perrinet LU, Peyr\'{e} G.
+\newblock Biologically Inspired Dynamic Textures for Probing Motion Perception.
+\newblock In: Cortes C, Lawrence ND, Lee DD, Sugiyama M, Garnett R, Garnett R,
+  editors. Advances in Neural Information Processing Systems 28. Curran
+  Associates, Inc.; 2015. p. 1909--1917.
+\newblock Available from: \url{http://arxiv.org/abs/1511.02705}.
+
+\bibitem{Cantor2007}
+Cantor CRL, Schor CM.
+\newblock {Stimulus dependence of the flash-lag effect}.
+\newblock Vision Research. 2007;47(22):2841--2854.
+
+\bibitem[Simoncini et~al.(2012)Simoncini, Perrinet, Montagnini, Mamassian, and Masson]{Simoncini12}
+Simoncini C, Perrinet LU, Montagnini A, Mamassian P, Masson GS.
+\newblock More is not always better: adaptive gain control explains
+ dissociation between perception and action.
+\newblock Nature Neurosci. 2012 Nov;15(11):1596--1603.
+\newblock Available from: \url{http://dx.doi.org/10.1038/nn.3229}.
+
+\bibitem{Orban1984}
+Orban GA, de~Wolf J, Maes H.
+\newblock {Factors influencing velocity coding in the human visual system}.
+\newblock Vision Research. 1984 jan;24(1):33--39.
+\newblock Available from:
+  \url{http://linkinghub.elsevier.com/retrieve/pii/004269898490141X}.
+
+\bibitem{Orban1985}
+Orban Ga, {Van Calenbergh} F, {De Bruyn} B, Maes H.
+\newblock {Velocity discrimination in central and peripheral visual field}.
+\newblock Journal of the Optical Society of America A. 1985 nov;2(11):1836.
+\newblock Available from:
+  \url{https://www.osapublishing.org/abstract.cfm?URI=josaa-2-11-1836}.
+
+\bibitem[Fu et~al.(2001)Fu, Shen, and Dan]{Fu01}
+Fu YX, Shen Y, Dan Y.
+\newblock {Motion-Induced} Perceptual Extrapolation of Blurred Visual Targets.
+\newblock The Journal of Neuroscience. 2001 Oct;21(20):RC172.
+\newblock Available from: \url{http://view.ncbi.nlm.nih.gov/pubmed/11588202}.
+
+\bibitem[Watamaniuk et~al.(1995)Watamaniuk, McKee, and Grzywacz]{Watanamiuk94}
+Watamaniuk SNJ, McKee SP, Grzywacz N.
+\newblock Detecting a trajectory embedded in random-direction motion noise.
+\newblock Vision Research. 1995 Jan;35(1).
+\newblock Available from: \url{http://dx.doi.org/10.1016/0042-6989(94)E0047-O}.
+
+\bibitem[Kaplan et~al.(2013)Kaplan, Lansner, Masson, and Perrinet]{Kaplan13}
+Kaplan BA, Lansner A, Masson GS, Perrinet LU.
+\newblock {Anisotropic connectivity implements motion-based prediction in a
+ spiking neural network.}
+\newblock Frontiers in computational neuroscience. 2013;7.
+\newblock Available from: \url{http://dx.doi.org/10.3389/fncom.2013.00112}.
+
+\bibitem[Whitney(2002)]{Whitney02}
+Whitney D.
+\newblock The influence of visual motion on perceived position.
+\newblock Trends in cognitive sciences. 2002;6(5):211--216.
+
+\bibitem[Maus et~al.(2010{\natexlab{b}})Maus, Weigelt, Nijhawan, and Muckli]{Maus10a}
+Maus GW, Weigelt S, Nijhawan R, Muckli L.
+\newblock Does Area V3A Predict Positions of Moving Objects?
+\newblock Frontiers in psychology. 2010;1.
+
+\bibitem[Maus et~al.(2013{\natexlab{a}})Maus, Fischer, and Whitney]{Maus13nr}
+Maus GW, Fischer J, Whitney D.
+\newblock Motion-Dependent Representation of Space in Area MT+.
+\newblock Neuron. 2013;78(3):554--562.
+
+\bibitem[Maus et~al.(2013{\natexlab{b}})Maus, Ward, Nijhawan, and Whitney]{Maus13cc}
+Maus GW, Ward J, Nijhawan R, Whitney D.
+\newblock The perceived position of moving objects: transcranial magnetic
+ stimulation of area MT+ reduces the flash-lag effect.
+\newblock Cerebral cortex (New York, NY : 1991). 2013;23(1):241--247.
+
+\bibitem[Erlhagen(2003)]{Erlhagen03}
+Erlhagen W.
+\newblock Internal models for visual perception.
+\newblock Biological cybernetics. 2003;88(5):409--417.
+
+\bibitem[Baldo and Caticha(2005)]{Baldo05}
+Baldo M, Caticha N.
+\newblock Computational neurobiology of the flash-lag effect.
+\newblock Vision research. 2005;45(20):2620--2630.
+
+\bibitem[Lim and Choe(2006)]{Lim06}
+Lim H, Choe Y.
+\newblock Compensating for neural transmission delay using extrapolatory neural
+ activation in evolutionary neural networks.
+\newblock In: Neural Information Processing Letters and Reviews; 2006. p.
+ 147--161.
+\newblock Available from:
+ \url{http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.90.8178}.
+
+\bibitem[Lim and Choe(2008)]{Lim08}
+Lim H, Choe Y.
+\newblock {Extrapolative delay compensation through facilitating synapses and
+ its relation to the flash-lag effect.}
+\newblock IEEE transactions on neural networks / a publication of the IEEE
+ Neural Networks Council. 2008 Oct;19(10):1678--1688.
+\newblock Available from: \url{http://dx.doi.org/10.1109/tnn.2008.2001002}.
+
+\bibitem{Kirschfeld1999}
+Kirschfeld K, Kammer T.
+\newblock {The Fr{\"{o}}hlich effect: a consequence of the interaction of
+  visual focal attention and metacontrast.}
+\newblock Vision research. 1999 nov;39(22):3702--9.
+\newblock Available from: \url{http://www.ncbi.nlm.nih.gov/pubmed/10746140}.
+
+\end{thebibliography}
+\end{document}%
