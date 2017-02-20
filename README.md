@@ -4,4 +4,4 @@ Code to replicate paper “The flash-lag effect as a motion-based predictive shi
 
 http://invibe.net/LaurentPerrinet/Publications/KhoeiMassonPerrinet17
 
-Due date of publication: January 26th, 2017
+Date of publication: January 26th, 2017
