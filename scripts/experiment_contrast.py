@@ -1,4 +1,4 @@
-import MotionParticles as mp
+import MotionParticlesFLE as mp
 gen_dot = mp.generate_dot
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,7 +17,7 @@ if True:
         #image_contrast[stimulus_tag]['args'] = {'Y_0':0,  'noise':noise,  'dot_size':dot_size}
         image_contrast[stimulus_tag]['im'] = gen_dot(N_X=N_X, N_Y=N_Y, N_frame=N_frame, **image_contrast[stimulus_tag]['args'])
         image_contrast[stimulus_tag]['result'] = {}
-        # running PX and MBP 
+        # running PX and MBP
         #for D_x, D_V, v_prior, label in zip([mp.D_x, PBP_D_x], [mp.D_V, PBP_D_V], [mp.v_prior, PBP_prior], ['MBP', 'PBP']):
         for D_x, D_V, v_prior, label in zip([mp.D_x], [mp.D_V], [mp.v_prior], ['MBP']):
             figname = os.path.join(mp.figpath, experiment + '-' + stimulus_tag + '-' + label)
@@ -26,10 +26,10 @@ if True:
             image_contrast[stimulus_tag]['result'][label] = {}
             image_contrast[stimulus_tag]['args'].update(D_V=D_V, D_x=D_x, v_prior=v_prior)
             kwargs_variable  = mp.figure_image_variable(
-                    figname, 
-                    N_X, N_Y, N_frame, gen_dot, order=None, do_figure=do_figure, do_video=do_video, 
+                    figname,
+                    N_X, N_Y, N_frame, gen_dot, order=None, do_figure=do_figure, do_video=do_video,
                     N_quant_X=N_quant_X, N_quant_Y=N_quant_Y,
-                    fixed_args=image_contrast[stimulus_tag]['args'], 
+                    fixed_args=image_contrast[stimulus_tag]['args'],
                     im_contrast=im_contrasts)
 
             for new_kwargs in kwargs_variable:
@@ -45,7 +45,7 @@ if True:
                 #except:
                 #    print('no result yet for ', matname)
 
-if True:                
+if True:
     experiment = 'duration'
     flash_durations = np.array([.03, .05, .08, .13, .25])
     flash_starts = .5 - flash_durations/2
@@ -63,9 +63,9 @@ if True:
     figname = os.path.join(mp.figpath, experiment + '-' + stimulus_tag + '-' + label)
     image_duration[stimulus_tag]['result'][label] = {}
     kwargs_variable  = mp.figure_image_variable(
-            figname, 
+            figname,
                 N_X, N_Y, N_frame, gen_dot, order=None, do_figure=do_figure, do_video=do_video, N_quant_X=N_quant_X, N_quant_Y=N_quant_Y,
-            fixed_args=image_duration[stimulus_tag]['args'], 
+            fixed_args=image_duration[stimulus_tag]['args'],
             flash_start=flash_starts, flash_duration=flash_durations)
 
     for new_kwargs in kwargs_variable:
@@ -78,4 +78,3 @@ if True:
             #plt.show()
         except:
             print('no result yet for ', matname)
-    

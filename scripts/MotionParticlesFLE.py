@@ -6,7 +6,7 @@ __licence__ = 'BSD licence'
 DEBUG = True
 DEBUG = False
 """
-MotionParticles.py
+MotionParticlesFLE.py
 
 Script file for MotionParticles
 

@@ -1,4 +1,4 @@
-import MotionParticles as mp
+import MotionParticlesFLE as mp
 gen_dot = mp.generate_dot
 import numpy as np
 import os
@@ -19,12 +19,12 @@ for stimulus_tag, im_arg in zip(stim_labels, stim_args):
         # running PX and MBP with 2 different latencies
         for D_x, D_V, v_prior, label in zip([mp.D_x, PBP_D_x], [mp.D_V, PBP_D_V], [mp.v_prior, PBP_prior], ['MBP', 'PBP']):
             figname = os.path.join(mp.figpath, experiment + '-' + stimulus_tag + '-' + label)
-            
+
             image[stimulus_tag]['result'][label] = {}
             image[stimulus_tag]['args'].update(D_V=D_V, D_x=D_x, v_prior=v_prior)
             _  = mp.figure_image_variable(
-                    figname, 
-                    N_X, N_Y, N_frame, gen_dot, order=None, 
+                    figname,
+                    N_X, N_Y, N_frame, gen_dot, order=None,
                     do_figure=do_figure, do_video=do_video, N_quant_X=N_quant_X, N_quant_Y=N_quant_Y,
                     fixed_args=image[stimulus_tag]['args'], latency=latencies)
             try:

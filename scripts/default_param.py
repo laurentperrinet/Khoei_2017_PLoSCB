@@ -6,7 +6,7 @@ Default parameters for all experiments
 from __future__ import division, print_function
 import numpy as np
 
-import MotionParticles as mp
+import MotionParticlesFLE as mp
 N_X, N_Y, N_frame = mp.N_X, mp.N_Y, mp.N_frame
 X_0 = -1.
 V_X = 1.
@@ -81,9 +81,9 @@ def adjust_spines(ax, spines):
         # no xaxis ticks
         ax.xaxis.set_ticks([])
 
-        
+
 import matplotlib
-pylab_defaults = { 
+pylab_defaults = {
     'font.size': 10,
     'xtick.labelsize':'medium',
     'ytick.labelsize':'medium',
@@ -91,14 +91,14 @@ pylab_defaults = {
 #    'font.family' : 'sans-serif',
 #    'font.sans-serif' : ['Helvetica'],
     }
-    
+
 #matplotlib.rcParams.update({'font.size': 18, 'font.family': 'STIXGeneral', 'mathtext.fontset': 'stix'})
 matplotlib.rcParams.update(pylab_defaults)
 #matplotlib.rcParams.update({'text.usetex': True})
 
 import matplotlib.cm as cm
 
-# quantization 
+# quantization
 N_quant_X = 50
 N_quant_Y = 50
 N_frame_av = 2 # on how many frames (before AND after) we average
