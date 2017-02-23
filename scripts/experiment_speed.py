@@ -31,7 +31,7 @@ for D_x, D_V, v_prior, label in zip([mp.D_x, PBP_D_x], [mp.D_V, PBP_D_V], [mp.v_
     image_speed[stimulus_tag]['args'].update(D_V=D_V, D_x=D_x, v_prior=v_prior)
 
     kwargs_variable  = mp.figure_image_variable(
-            figname,
+            figname, 
             N_X, N_Y, N_frame, gen_dot, order=None, do_figure=do_figure, do_video=do_video, N_quant_X=N_quant_X, N_quant_Y=N_quant_Y,
             fixed_args=image_speed[stimulus_tag]['args'],
             V_X=speeds, X_0=X_0s, flash_start=dot_starts, flash_duration=flash_durations)
