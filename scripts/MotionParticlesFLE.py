@@ -605,7 +605,7 @@ def my_quiver(a, particles, color, scale, line_width, base, width, ywidth, size_
     colors = list()
     line_widths = list()
 
-    shifts = [(0., 0.), (width, 0.), (-width, 0.), (0., ywidth), (0., -ywidth), (width, ywidth), (-width, ywidth), (-width, ywidth), (-width, -ywidth)]
+    shifts = [(0., 0.), (width, 0.), (-width, 0.), (0., ywidth), (0., -ywidth), (width, ywidth), (-width, ywidth), (width, -ywidth), (-width, -ywidth)]
 #
 #    shifts = [(0., 0.), (width, 0.), (-width, 0.), (0., width), (0., -width), (width, width), (-width, width), (-width, width), (-width, -width)]
     for x, y, u, v, color_ in zip(X, Y, U, V, color):
