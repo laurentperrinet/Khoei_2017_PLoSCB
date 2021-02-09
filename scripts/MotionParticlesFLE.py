@@ -307,7 +307,7 @@ def prediction(particles, N_frame, D_V, D_x, width, v_prior):
     """
     N = particles.shape[1]
     particles_out = particles.copy()
-    if particles.ndim is 3:
+    if particles.ndim == 3:
         for i_frame in range(particles.shape[2]):
             particles_out[:, :, i_frame] = prediction(particles[:, :, i_frame], N_frame, D_V=D_V, D_x=D_x, width=width, v_prior=v_prior)
     else:
@@ -467,8 +467,8 @@ def show_particles(particles, image=None, N_X=N_X, N_Y=N_Y, N_show=N_show, alpha
     if fig is None: fig = pylab.figure(figsize=(fig_width, fig_width * np.float(N_Y) / N_X))
     # Add an a axes with axes rect [left, bottom, width, height] where all quantities are in fractions of figure width and height.
 #    a = fig.add_axes((border, border * np.float(N_Y) / N_X, 1.-2*border, 1.-2*border * np.float(N_Y) / N_X))
-    if a is None: a = fig.add_axes((border, border, 1.-2*border, 1.-2*border))#, frameon=False, axisbg='w')
-    a.axis(c='b', lw=2)
+    if a is None: a = fig.add_axes((border, border, 1.-2*border, 1.-2*border))#, frameon=False, facecolor='w')
+    #a.axis(lw=2)
 
     ywidth = width * np.float(N_Y) / N_X
     opts = {'vmin':vmin, 'vmax':vmax, 'interpolation':'nearest', 'extent':(-width/2, width/2, -ywidth/2., ywidth/2.), 'aspect':'auto'} # 'origin':'lower',
@@ -552,14 +552,14 @@ def show_particles(particles, image=None, N_X=N_X, N_Y=N_Y, N_show=N_show, alpha
     if axis_label : pylab.xlabel(r'X axis'); pylab.ylabel(r'Y axis')
 #    else: pylab.axis([-1, 1, -1, 1])
     if inset and  particles.ndim == 2:
-#        a_inset = fig.add_axes([.8, .8, .195, .195], axisbg='k', polar=True)
-        a_inset = fig.add_axes([0, 0, .3, .3], axisbg='k', polar=True)
+#        a_inset = fig.add_axes([.8, .8, .195, .195], facecolor='k', polar=True)
+        a_inset = fig.add_axes([0, 0, .3, .3], facecolor='k', polar=True)
         v_hist, v_r_edges, v_theta_edges = vel_readout(particles_full, display=False)
         N_v, N_theta, v_max = v_r_edges.size, v_theta_edges.size, v_r_edges.max()
         [V_r_edges, V_theta_edges] = np.mgrid[v_max/N_v:v_max:1j*N_v,
                 (-np.pi+ np.pi/N_theta):(np.pi+ np.pi/N_theta):1j*N_theta]
         a_inset.pcolormesh(V_theta_edges, V_r_edges, v_hist, cmap=pylab.bone(),
-                vmin=0., vmax=v_hist.max(), edgecolor='none')
+                vmin=0., vmax=v_hist.max(), edgecolor='none', shading='auto')
         # draw a cross in the center
         from matplotlib.collections import LineCollection
         # sequence of  r, theta segments (we are in polar coordinates)
@@ -774,7 +774,7 @@ def vel_readout(particles, N_v=N_v, N_theta=N_theta, v_max=v_max, display=True, 
 
     if display:
         fig = pylab.figure(figsize=figsize)
-        a = pylab.axes([0.1, 0.1, 0.8, 0.8], polar=True, axisbg='w')
+        a = pylab.axes([0.1, 0.1, 0.8, 0.8], polar=True, facecolor='w')
         if direction:
             theta = .5*(v_theta_edges[:-1]+v_theta_edges[1:])
             prob = v_hist.sum(axis=0)
@@ -785,7 +785,7 @@ def vel_readout(particles, N_v=N_v, N_theta=N_theta, v_max=v_max, display=True, 
             [V_r_edges, V_theta_edges] = np.mgrid[v_max/N_v:v_max:1j*N_v,
                         (-np.pi+ np.pi/N_theta):(np.pi+ np.pi/N_theta):1j*N_theta]
 #             [V_r_edges, V_theta_edges] = mgrid[v_max/N_v:v_max:1j*N_v, -pi:pi:1j*N_theta]
-            a.pcolormesh(V_theta_edges, V_r_edges, v_hist, cmap=pylab.bone(), vmin=0., vmax=v_hist.max())#, edgecolor='k')
+            a.pcolormesh(V_theta_edges, V_r_edges, v_hist, cmap=pylab.bone(), vmin=0., vmax=v_hist.max(), shading='auto')#, edgecolor='k')
         return fig
     else:
         return v_hist, v_r_edges, v_theta_edges
@@ -818,7 +818,7 @@ def spatial_readout(particles, N_X=N_X, N_Y=N_Y, N_quant_X=N_quant_X, N_quant_Y=
         N_quant_Y = int(N_quant_X * np.float(N_Y) / N_X) # quantisation for position histograms
     N_frame = None
     if particles.ndim == 3: N_frame = particles.shape[2]
-    if (N_quant_Y is 1) and not (N_frame is None) :
+    if (N_quant_Y == 1) and not (N_frame is None) :
         v_hist = np.zeros((N_quant_X, N_quant_T))
         v_hist_u = np.zeros((N_quant_X, N_quant_T))
         x_edges = np.linspace(-width/2, width/2, N_quant_X+1)
@@ -841,7 +841,7 @@ def spatial_readout(particles, N_X=N_X, N_Y=N_Y, N_quant_X=N_quant_X, N_quant_Y=
         # ywidth = width * np.float(N_Y) / N_X
         x_edges = np.linspace(-width/2, width/2, N_quant_X+1)
         y_edges = np.linspace(-width/2 * np.float(N_Y)/N_X, width/2 * np.float(N_Y)/N_X, N_quant_Y+1)
-        if hue and display and not (N_quant_Y is 1):
+        if hue and display and not (N_quant_Y == 1):
             N_theta_=3 # the 3 RGB channels
             u = particles[3, ...].ravel()
             v = particles[2, ...].ravel()
@@ -860,30 +860,30 @@ def spatial_readout(particles, N_X=N_X, N_Y=N_Y, N_quant_X=N_quant_X, N_quant_Y=
             v_hist /= v_hist.sum()
 
     if display:
-        if N_quant_Y is 1 and (N_frame is None)  : # PDF of x at some time
+        if (N_quant_Y == 1) and (N_frame is None)  : # PDF of x at some time
             if fig is None: fig = pylab.figure(figsize=(fig_width, fig_width * np.float(N_Y) / N_X))
             if a is None:
                 a = fig.add_subplot(1, 1, 1)
-                a.axis(c='b', lw=2)
+                # a.axis(lw=2)
             a.plot(.5*x_edges[:-1] + .5*x_edges[1:], v_hist.ravel())
             a.set_ylim([0., v_hist.max()])
 #             a.axis([-width/2, width/2, -width/2 * np.float(N_Y)/N_X, width/2 * np.float(N_Y)/N_X])
-        elif N_quant_Y is 1 and not (N_frame is None)  : # X-T plot
+        elif (N_quant_Y == 1) and not (N_frame is None)  : # X-T plot
             if fig is None: fig = pylab.figure(figsize=(fig_width * np.float(N_quant_T) / N_X, fig_width))
 #             if a is None: a = fig.add_subplot(1, 1, 1)
             if a is None:
                 a = []
                 a.append(fig.add_axes([0.1, 0.07, .86, .41]))
                 a.append(fig.add_axes([0.1, 0.57, .86, .41]))
-                for ax in a: ax.axis(c='b', lw=2)
+                #for ax in a: ax.axis(lw=2)
 #             time, (.5*x_edges[:-1] + .5*x_edges[1:]), print (time[np.newaxis, :].shape)
             x_middle = .5*(x_edges[1:] + x_edges[:-1])
             v_hist /= v_hist.max(axis=0)[np.newaxis, :]
             Time, X = np.meshgrid(np.linspace(0, 1, N_quant_T), x_edges_)# .5*(x_edges_[:-1]+x_edges_[1:]))
-            a[0].pcolormesh(Time, X, v_hist, cmap=pylab.cm.Blues, vmin=0., vmax=v_hist.max())#, edgecolor='k')#(.1, .1, .1, .6))
+            a[0].pcolormesh(Time, X, v_hist, cmap=pylab.cm.Blues, vmin=0., vmax=v_hist.max(), shading='auto')#, edgecolor='k')#(.1, .1, .1, .6))
             Time, U = np.meshgrid(np.linspace(0, 1, N_quant_T), u_edges_)# .5*(u_edges_[:-1]+u_edges_[1:]))
             v_hist_u /= v_hist_u.max(axis=0)[np.newaxis, :]
-            a[1].pcolormesh(Time, U, v_hist_u, cmap=pylab.cm.Reds, vmin=0., vmax=v_hist_u.max())#, edgecolor='k')#(.1, .1, .1, .6))
+            a[1].pcolormesh(Time, U, v_hist_u, cmap=pylab.cm.Reds, vmin=0., vmax=v_hist_u.max(), shading='auto')#, edgecolor='k')#(.1, .1, .1, .6))
             if ruler:
                 a[0].plot([0, 1], [-1, 1], 'b--', lw=2)
                 for i, min_y, max_y in zip(range(2), [-1, -1.4], [1, 1.4]):
@@ -901,14 +901,14 @@ def spatial_readout(particles, N_X=N_X, N_Y=N_Y, N_quant_X=N_quant_X, N_quant_Y=
             if fig is None: fig = pylab.figure(figsize=(fig_width, fig_width * np.float(N_quant_Y) / N_quant_X))
             if a is None:
                 a = fig.add_axes([0., 0., 1., 1.])
-                a.axis(c='b', lw=2)
+                #a.axis(lw=2)
 
             if hue :
                 # TODO : overlay image and use RGB(A) information
                 a.imshow(np.fliplr(np.rot90(v_hist/v_hist.max(),3)), interpolation='nearest', origin='lower',
                         extent=(-width/2, width/2, -width/2 * np.float(N_quant_Y)/N_quant_X, width/2 * np.float(N_quant_Y)/N_quant_X))#
             else:
-                a.pcolormesh(x_edges, y_edges, v_hist.T, cmap=pylab.bone(), vmin=0., vmax=v_hist.max())#, edgecolor='k')
+                a.pcolormesh(x_edges, y_edges, v_hist.T, cmap=pylab.bone(), vmin=0., vmax=v_hist.max(), shading='auto')#, edgecolor='k')
             a.axis([-width/2, width/2, -width/2 * np.float(N_quant_Y)/N_quant_X, width/2 * np.float(N_quant_Y)/N_quant_X])
 
         return fig, a
@@ -1177,7 +1177,7 @@ def anim_save(z, filename, N_X=N_X, N_Y=N_Y, N_quant_X=None, N_quant_Y=None, par
                 im_ = z[:, :, i_frame % N_frame]
                 im_ = np.fliplr(im_).T
 #                 toimage(im_, cmin=0., cmax=1.).save(fname)
-                imageio.imwrite(fname, im_)
+                imageio.imwrite(fname, (im_*255).astype(np.uint8))
 
             else: # TODO: use a switch to choose the type of visualization?
                 fig_width = 10
@@ -1809,16 +1809,16 @@ def figure_statespace(name, image, ext=ext, N_blur=N_blur, N_noise=N_noise, N_tr
         vmin = mat[: , :, 0].min()
         fig = pylab.figure(figsize=(12, 8))
         a1 = fig.add_subplot(221)
-        mapable = a1.pcolormesh(mat[: , :, 0], vmin=vmin, vmax=vmax)#, edgecolors='k')
+        mapable = a1.pcolormesh(mat[: , :, 0], vmin=vmin, vmax=vmax, shading='auto')#, edgecolors='k')
         pylab.axis('tight')
         a2 = fig.add_subplot(222)
-        a2.pcolormesh(mat[: , :, 1], vmin=vmin, vmax=vmax)#, edgecolors='k')
+        a2.pcolormesh(mat[: , :, 1], vmin=vmin, vmax=vmax, shading='auto')#, edgecolors='k')
         pylab.axis('tight')
         a3 = fig.add_subplot(223)
-        a3.pcolormesh(mat[: , :, 2], vmin=vmin, vmax=vmax)#, edgecolors='k')
+        a3.pcolormesh(mat[: , :, 2], vmin=vmin, vmax=vmax, shading='auto')#, edgecolors='k')
         pylab.axis('tight')
         a4 = fig.add_subplot(224)
-        a4.pcolormesh(mat[: , :, 3], vmin=vmin, vmax=vmax)#, edgecolors='k')
+        a4.pcolormesh(mat[: , :, 3], vmin=vmin, vmax=vmax, shading='auto')#, edgecolors='k')
         pylab.axis('tight')
 
         for i_a, ax in enumerate([a1, a2, a3, a4]):
@@ -1844,7 +1844,7 @@ def figure_statespace(name, image, ext=ext, N_blur=N_blur, N_noise=N_noise, N_tr
 
         height = pylab.rcParams['figure.subplot.top']-pylab.rcParams['figure.subplot.bottom']
 #        print [0.91, pylab.rcParams['figure.subplot.bottom'] + height/4., .025, height/2. ]
-        a5 = pylab.axes([0.91, pylab.rcParams['figure.subplot.bottom'] + height/4., .025, height/2. ], axisbg='w') # [l, b, w, h]
+        a5 = pylab.axes([0.91, pylab.rcParams['figure.subplot.bottom'] + height/4., .025, height/2. ], facecolor='w') # [l, b, w, h]
         pylab.colorbar(mapable, cax=a5, ax=a1, format='%.2f')
         return fig
 #    print tracking.min(), tracking.max(), tracking.mean()
@@ -1908,10 +1908,10 @@ def figure_statespace(name, image, ext=ext, N_blur=N_blur, N_noise=N_noise, N_tr
 
             fig = pylab.figure(figsize=(5, 10))
             a1 = fig.add_subplot(211)
-            mapable = a1.pcolormesh(tracking_vel)#, edgecolors='k')
+            mapable = a1.pcolormesh(tracking_vel, shading='auto')#, edgecolors='k')
             pylab.axis('tight')
             a2 = fig.add_subplot(212)
-            a2.pcolormesh(bias_vel)#, edgecolors='k')
+            a2.pcolormesh(bias_vel, shading='auto')#, edgecolors='k')
             pylab.axis('tight')
 
             for i_a, ax in enumerate([a1, a2]):
@@ -1937,7 +1937,7 @@ def figure_statespace(name, image, ext=ext, N_blur=N_blur, N_noise=N_noise, N_tr
 
             height = pylab.rcParams['figure.subplot.top']-pylab.rcParams['figure.subplot.bottom']
     #        print [0.91, pylab.rcParams['figure.subplot.bottom'] + height/4., .025, height/2. ]
-            a5 = pylab.axes([0.91, pylab.rcParams['figure.subplot.bottom'] + height/4., .025, height/2. ], axisbg='w') # [l, b, w, h]
+            a5 = pylab.axes([0.91, pylab.rcParams['figure.subplot.bottom'] + height/4., .025, height/2. ], facecolor='w') # [l, b, w, h]
             pylab.colorbar(mapable, cax=a5, ax=a1, format='%.2f')
             pylab.savefig(figname_statespace_phases)
 
